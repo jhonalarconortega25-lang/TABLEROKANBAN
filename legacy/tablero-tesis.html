@@ -1,0 +1,1024 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tablero Tesis G09</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  :root {
+    --paper: #eef1f7;
+    --surface: #ffffff;
+    --surface-2: #e4e9f2;
+    --ink: #1e2735;
+    --ink-muted: #5c6b80;
+    --border: #d7deea;
+    --accent: #2f5673;
+    --accent-strong: #1f3f56;
+    --accent-soft: #dde8ee;
+    --gold: #a8752f;
+    --gold-soft: #f3e6d2;
+    --shadow: rgba(30, 39, 53, .08);
+    --overdue: #b3261e;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper: #12161d;
+      --surface: #1a212c;
+      --surface-2: #212a37;
+      --ink: #e7ebf2;
+      --ink-muted: #93a1b6;
+      --border: #2c3644;
+      --accent: #86b0cc;
+      --accent-strong: #b7d4e6;
+      --accent-soft: #223142;
+      --gold: #d9a75a;
+      --gold-soft: #3a2f1c;
+      --shadow: rgba(0, 0, 0, .35);
+      --overdue: #ef8a83;
+    }
+  }
+  :root[data-theme="dark"] {
+    --paper: #12161d;
+    --surface: #1a212c;
+    --surface-2: #212a37;
+    --ink: #e7ebf2;
+    --ink-muted: #93a1b6;
+    --border: #2c3644;
+    --accent: #86b0cc;
+    --accent-strong: #b7d4e6;
+    --accent-soft: #223142;
+    --gold: #d9a75a;
+    --gold-soft: #3a2f1c;
+    --shadow: rgba(0, 0, 0, .35);
+    --overdue: #ef8a83;
+  }
+
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'IBM Plex Sans', 'Segoe UI', system-ui, sans-serif;
+  }
+  .font-display { font-family: 'Fraunces', Georgia, 'Times New Roman', serif; text-wrap: balance; }
+  .font-mono-num { font-family: 'IBM Plex Mono', ui-monospace, monospace; font-variant-numeric: tabular-nums; }
+
+  .app-header { background: var(--surface); border-bottom: 1px solid var(--border); }
+  .eyebrow { color: var(--accent); letter-spacing: .12em; }
+
+  .btn-primary {
+    background: var(--accent-strong);
+    color: var(--surface);
+    transition: background-color .15s ease, transform .1s ease;
+  }
+  .btn-primary:hover { background: var(--accent); }
+  .btn-primary:active { transform: translateY(1px); }
+
+  .btn-ghost {
+    color: var(--ink-muted);
+    border: 1px solid var(--border);
+    background: transparent;
+  }
+  .btn-ghost:hover { background: var(--surface-2); color: var(--ink); }
+
+  .field {
+    background: var(--surface);
+    color: var(--ink);
+    border: 1px solid var(--border);
+  }
+  .field::placeholder { color: var(--ink-muted); }
+  .field:focus, .btn-primary:focus-visible, .btn-ghost:focus-visible, button:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  .panel { background: var(--surface); border: 1px solid var(--border); box-shadow: 0 1px 2px var(--shadow); }
+  .panel-header { border-bottom: 1px solid var(--border); }
+
+  .column-drop {
+    min-height: 120px;
+    transition: background-color .15s ease;
+  }
+  .column-drop.drag-over {
+    background-color: var(--accent-soft);
+    outline: 2px dashed var(--accent);
+    outline-offset: -4px;
+  }
+
+  .stage-dot { width: .6rem; height: .6rem; border-radius: 999px; }
+  .stage-todo { background: var(--ink-muted); }
+  .stage-inprogress { background: var(--accent); }
+  .stage-review { background: var(--gold); }
+  .stage-done { background: #3f8f5f; }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) .stage-done { background: #6bbf8a; }
+  }
+  :root[data-theme="dark"] .stage-done { background: #6bbf8a; }
+
+  .task-card {
+    cursor: grab;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    transition: transform .12s ease, box-shadow .12s ease;
+  }
+  .task-card:active { cursor: grabbing; }
+  .task-card.dragging { opacity: .4; }
+  .task-card:hover { box-shadow: 0 6px 18px var(--shadow); transform: translateY(-1px); }
+
+  .priority-Alta { background:#f9dedb; color:#8c241c; border:1px solid #e3a8a1; }
+  .priority-Media { background:var(--gold-soft); color:#7a5220; border:1px solid #d8b783; }
+  .priority-Baja { background:#dcece1; color:#276041; border:1px solid #a3cdb3; }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) .priority-Alta { background:#4a221f; color:#f3b3ac; border-color:#733a34; }
+    :root:not([data-theme="light"]) .priority-Media { background:#4a3a1e; color:#e8c485; border-color:#755b30; }
+    :root:not([data-theme="light"]) .priority-Baja { background:#1f3d2c; color:#9cd3b3; border-color:#38624a; }
+  }
+  :root[data-theme="dark"] .priority-Alta { background:#4a221f; color:#f3b3ac; border-color:#733a34; }
+  :root[data-theme="dark"] .priority-Media { background:#4a3a1e; color:#e8c485; border-color:#755b30; }
+  :root[data-theme="dark"] .priority-Baja { background:#1f3d2c; color:#9cd3b3; border-color:#38624a; }
+
+  .avatar-Jhon { background:#d7e3ee; color:#284a63; }
+  .avatar-Jeniffer { background:#ecd9e8; color:#6b3459; }
+  .avatar-Franco { background:#ddeadd; color:#2f5a3a; }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) .avatar-Jhon { background:#2a3d4e; color:#a9c7dc; }
+    :root:not([data-theme="light"]) .avatar-Jeniffer { background:#3d2c39; color:#dba9ce; }
+    :root:not([data-theme="light"]) .avatar-Franco { background:#28382b; color:#a7cbab; }
+  }
+  :root[data-theme="dark"] .avatar-Jhon { background:#2a3d4e; color:#a9c7dc; }
+  :root[data-theme="dark"] .avatar-Jeniffer { background:#3d2c39; color:#dba9ce; }
+  :root[data-theme="dark"] .avatar-Franco { background:#28382b; color:#a7cbab; }
+
+  .modal-backdrop { background: rgba(10, 14, 20, .6); }
+
+  .comment-bubble { background: var(--surface-2); border-radius: 10px; }
+
+  ::-webkit-scrollbar { width: 8px; height: 8px; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 8px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+
+  .fade-in { animation: fadeIn .15s ease; }
+  @keyframes fadeIn { from { opacity:0; transform: translateY(4px);} to {opacity:1; transform:none;} }
+  @media (prefers-reduced-motion: reduce) {
+    .fade-in { animation: none; }
+    .task-card, .btn-primary { transition: none; }
+  }
+
+  .overdue { color: var(--overdue); font-weight:600; }
+
+  .btnDelete:hover { color: var(--overdue); }
+  .btnComments:hover { color: var(--accent-strong); }
+</style>
+</head>
+<body class="min-h-screen">
+
+<header class="app-header sticky top-0 z-20">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex flex-col gap-3">
+    <div class="flex flex-wrap items-center justify-between gap-3">
+      <div>
+        <p class="eyebrow text-[11px] font-semibold uppercase">Proyecto de tesis · Grupo 09</p>
+        <h1 class="font-display text-2xl sm:text-3xl font-semibold" style="color:var(--ink)">Tablero Kanban</h1>
+      </div>
+      <div class="flex items-center gap-3">
+        <span id="readOnlyBadge" class="hidden text-xs font-medium px-2.5 py-1 rounded-full" style="background:var(--surface-2); color:var(--ink-muted)">👁 Solo lectura</span>
+        <button id="btnNewTask"
+          class="btn-primary inline-flex items-center gap-2 font-medium px-4 py-2 rounded-lg shadow-sm">
+          <span class="text-lg leading-none">+</span> Nueva Tarea
+        </button>
+      </div>
+    </div>
+
+    <div class="flex flex-wrap items-center gap-3">
+      <div class="flex items-center gap-2">
+        <label class="text-sm font-medium" style="color:var(--ink-muted)">Responsable:</label>
+        <select id="filterAssignee" class="field text-sm rounded-md px-2 py-1.5">
+          <option value="">Todos</option>
+          <option value="Jhon">Jhon</option>
+          <option value="Jeniffer">Jeniffer</option>
+          <option value="Franco">Franco</option>
+        </select>
+      </div>
+      <div class="flex items-center gap-2">
+        <label class="text-sm font-medium" style="color:var(--ink-muted)">Prioridad:</label>
+        <select id="filterPriority" class="field text-sm rounded-md px-2 py-1.5">
+          <option value="">Todas</option>
+          <option value="Alta">Alta</option>
+          <option value="Media">Media</option>
+          <option value="Baja">Baja</option>
+        </select>
+      </div>
+      <button id="btnClearFilters" class="text-sm font-medium underline underline-offset-2" style="color:var(--accent)">
+        Limpiar filtros
+      </button>
+    </div>
+  </div>
+</header>
+
+<main class="max-w-7xl mx-auto px-4 sm:px-6 py-6">
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4" id="board">
+    <!-- Columns injected by JS -->
+  </div>
+</main>
+
+<!-- Modal -->
+<div id="modalBackdrop" class="fixed inset-0 modal-backdrop hidden items-center justify-center z-50 p-4">
+  <div class="panel rounded-xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto fade-in">
+    <div class="panel-header flex items-center justify-between px-5 py-4">
+      <h2 id="modalTitle" class="font-display text-lg font-semibold">Nueva Tarea</h2>
+      <button id="btnCloseModal" class="text-2xl leading-none" style="color:var(--ink-muted)">&times;</button>
+    </div>
+    <form id="taskForm" class="px-5 py-4 space-y-4">
+      <input type="hidden" id="taskId">
+      <div>
+        <label class="block text-sm font-medium mb-1" style="color:var(--ink-muted)">Título</label>
+        <input type="text" id="taskTitle" required maxlength="80"
+          class="field w-full rounded-md px-3 py-2 text-sm"
+          placeholder="Ej: Redactar marco teórico">
+      </div>
+      <div>
+        <label class="block text-sm font-medium mb-1" style="color:var(--ink-muted)">Descripción corta</label>
+        <textarea id="taskDesc" rows="2" maxlength="200"
+          class="field w-full rounded-md px-3 py-2 text-sm"
+          placeholder="Detalle breve de la actividad"></textarea>
+      </div>
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm font-medium mb-1" style="color:var(--ink-muted)">Responsable</label>
+          <select id="taskAssignee" class="field w-full rounded-md px-3 py-2 text-sm">
+            <option value="Jhon">Jhon</option>
+            <option value="Jeniffer">Jeniffer</option>
+            <option value="Franco">Franco</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-1" style="color:var(--ink-muted)">Prioridad</label>
+          <select id="taskPriority" class="field w-full rounded-md px-3 py-2 text-sm">
+            <option value="Baja">Baja</option>
+            <option value="Media" selected>Media</option>
+            <option value="Alta">Alta</option>
+          </select>
+        </div>
+      </div>
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm font-medium mb-1" style="color:var(--ink-muted)">Fecha límite</label>
+          <input type="date" id="taskDueDate"
+            class="field w-full rounded-md px-3 py-2 text-sm font-mono-num">
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-1" style="color:var(--ink-muted)">Columna</label>
+          <select id="taskStatus" class="field w-full rounded-md px-3 py-2 text-sm">
+            <option value="todo">Por hacer</option>
+            <option value="inprogress">En progreso</option>
+            <option value="review">En revisión</option>
+            <option value="done">Completado</option>
+          </select>
+        </div>
+      </div>
+      <div class="flex justify-end gap-2 pt-2" style="border-top:1px solid var(--border)">
+        <button type="button" id="btnCancel" class="btn-ghost px-4 py-2 text-sm rounded-md">Cancelar</button>
+        <button type="submit" class="btn-primary px-4 py-2 text-sm rounded-md font-medium">Guardar</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Comments Modal -->
+<div id="commentsBackdrop" class="fixed inset-0 modal-backdrop hidden items-center justify-center z-50 p-4">
+  <div class="panel rounded-xl shadow-2xl w-full max-w-md max-h-[85vh] flex flex-col fade-in">
+    <div class="panel-header flex items-center justify-between px-5 py-4">
+      <h2 class="font-display text-lg font-semibold">Comentarios — <span id="commentsTaskTitle"></span></h2>
+      <button id="btnCloseComments" class="text-2xl leading-none" style="color:var(--ink-muted)">&times;</button>
+    </div>
+    <div id="commentsList" class="px-5 py-4 space-y-3 overflow-y-auto flex-1"></div>
+    <form id="commentForm" class="px-5 py-4 flex gap-2" style="border-top:1px solid var(--border)">
+      <input type="hidden" id="commentTaskId">
+      <input type="text" id="commentInput" placeholder="Escribe un comentario..." maxlength="300" required
+        class="field flex-1 rounded-md px-3 py-2 text-sm">
+      <button type="submit" class="btn-primary px-4 py-2 text-sm rounded-md font-medium">Enviar</button>
+    </form>
+  </div>
+</div>
+
+<script type="application/json" id="tasksData">[{"id":"seed-1","title":"Definir planteamiento del problema","description":"Redactar y consensuar el problema de investigación.","assignee":"Jhon","priority":"Alta","dueDate":"2026-08-29","status":"todo","comments":[]},{"id":"seed-2","title":"Levantamiento de antecedentes","description":"Buscar tesis y papers relacionados.","assignee":"Jeniffer","priority":"Media","dueDate":"2026-09-02","status":"todo","comments":[]},{"id":"seed-3","title":"Diseño de encuesta","description":"Elaborar instrumento de recolección de datos.","assignee":"Franco","priority":"Media","dueDate":"2026-08-31","status":"inprogress","comments":[]},{"id":"seed-4","title":"Marco teórico - Cap. 2","description":"Avance del capítulo 2 para revisión del asesor.","assignee":"Jhon","priority":"Alta","dueDate":"2026-08-28","status":"review","comments":[]},{"id":"seed-5","title":"Aprobación de título de tesis","description":"Título aprobado por comité.","assignee":"Franco","priority":"Baja","dueDate":"2026-08-16","status":"done","comments":[]}]</script>
+<script>
+// buildDocument regenerates the whole page (shell + current data) so it can be
+// republished via the `artifact` capability — every open view is expected to
+// receive a COMPLETE document, never a DOM snapshot, so the shell below is
+// authored as plain text and the app's own source is re-embedded via
+// Function#toString (see appMain call site) rather than serialized live DOM.
+function buildDocument(tasksArray) {
+  // Escape "<" via its JSON unicode escape so embedded task text can never
+  // contain a literal "<", which would risk prematurely closing the script tag it sits in.
+  const escapedLt = String.fromCharCode(92) + 'u003c';
+  const dataJson = JSON.stringify(tasksArray).replace(/</g, escapedLt);
+  return `<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tablero Tesis G09</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"><\/script>
+<style>
+  :root {
+    --paper: #eef1f7;
+    --surface: #ffffff;
+    --surface-2: #e4e9f2;
+    --ink: #1e2735;
+    --ink-muted: #5c6b80;
+    --border: #d7deea;
+    --accent: #2f5673;
+    --accent-strong: #1f3f56;
+    --accent-soft: #dde8ee;
+    --gold: #a8752f;
+    --gold-soft: #f3e6d2;
+    --shadow: rgba(30, 39, 53, .08);
+    --overdue: #b3261e;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper: #12161d;
+      --surface: #1a212c;
+      --surface-2: #212a37;
+      --ink: #e7ebf2;
+      --ink-muted: #93a1b6;
+      --border: #2c3644;
+      --accent: #86b0cc;
+      --accent-strong: #b7d4e6;
+      --accent-soft: #223142;
+      --gold: #d9a75a;
+      --gold-soft: #3a2f1c;
+      --shadow: rgba(0, 0, 0, .35);
+      --overdue: #ef8a83;
+    }
+  }
+  :root[data-theme="dark"] {
+    --paper: #12161d;
+    --surface: #1a212c;
+    --surface-2: #212a37;
+    --ink: #e7ebf2;
+    --ink-muted: #93a1b6;
+    --border: #2c3644;
+    --accent: #86b0cc;
+    --accent-strong: #b7d4e6;
+    --accent-soft: #223142;
+    --gold: #d9a75a;
+    --gold-soft: #3a2f1c;
+    --shadow: rgba(0, 0, 0, .35);
+    --overdue: #ef8a83;
+  }
+
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'IBM Plex Sans', 'Segoe UI', system-ui, sans-serif;
+  }
+  .font-display { font-family: 'Fraunces', Georgia, 'Times New Roman', serif; text-wrap: balance; }
+  .font-mono-num { font-family: 'IBM Plex Mono', ui-monospace, monospace; font-variant-numeric: tabular-nums; }
+
+  .app-header { background: var(--surface); border-bottom: 1px solid var(--border); }
+  .eyebrow { color: var(--accent); letter-spacing: .12em; }
+
+  .btn-primary {
+    background: var(--accent-strong);
+    color: var(--surface);
+    transition: background-color .15s ease, transform .1s ease;
+  }
+  .btn-primary:hover { background: var(--accent); }
+  .btn-primary:active { transform: translateY(1px); }
+
+  .btn-ghost {
+    color: var(--ink-muted);
+    border: 1px solid var(--border);
+    background: transparent;
+  }
+  .btn-ghost:hover { background: var(--surface-2); color: var(--ink); }
+
+  .field {
+    background: var(--surface);
+    color: var(--ink);
+    border: 1px solid var(--border);
+  }
+  .field::placeholder { color: var(--ink-muted); }
+  .field:focus, .btn-primary:focus-visible, .btn-ghost:focus-visible, button:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  .panel { background: var(--surface); border: 1px solid var(--border); box-shadow: 0 1px 2px var(--shadow); }
+  .panel-header { border-bottom: 1px solid var(--border); }
+
+  .column-drop {
+    min-height: 120px;
+    transition: background-color .15s ease;
+  }
+  .column-drop.drag-over {
+    background-color: var(--accent-soft);
+    outline: 2px dashed var(--accent);
+    outline-offset: -4px;
+  }
+
+  .stage-dot { width: .6rem; height: .6rem; border-radius: 999px; }
+  .stage-todo { background: var(--ink-muted); }
+  .stage-inprogress { background: var(--accent); }
+  .stage-review { background: var(--gold); }
+  .stage-done { background: #3f8f5f; }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) .stage-done { background: #6bbf8a; }
+  }
+  :root[data-theme="dark"] .stage-done { background: #6bbf8a; }
+
+  .task-card {
+    cursor: grab;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    transition: transform .12s ease, box-shadow .12s ease;
+  }
+  .task-card:active { cursor: grabbing; }
+  .task-card.dragging { opacity: .4; }
+  .task-card:hover { box-shadow: 0 6px 18px var(--shadow); transform: translateY(-1px); }
+
+  .priority-Alta { background:#f9dedb; color:#8c241c; border:1px solid #e3a8a1; }
+  .priority-Media { background:var(--gold-soft); color:#7a5220; border:1px solid #d8b783; }
+  .priority-Baja { background:#dcece1; color:#276041; border:1px solid #a3cdb3; }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) .priority-Alta { background:#4a221f; color:#f3b3ac; border-color:#733a34; }
+    :root:not([data-theme="light"]) .priority-Media { background:#4a3a1e; color:#e8c485; border-color:#755b30; }
+    :root:not([data-theme="light"]) .priority-Baja { background:#1f3d2c; color:#9cd3b3; border-color:#38624a; }
+  }
+  :root[data-theme="dark"] .priority-Alta { background:#4a221f; color:#f3b3ac; border-color:#733a34; }
+  :root[data-theme="dark"] .priority-Media { background:#4a3a1e; color:#e8c485; border-color:#755b30; }
+  :root[data-theme="dark"] .priority-Baja { background:#1f3d2c; color:#9cd3b3; border-color:#38624a; }
+
+  .avatar-Jhon { background:#d7e3ee; color:#284a63; }
+  .avatar-Jeniffer { background:#ecd9e8; color:#6b3459; }
+  .avatar-Franco { background:#ddeadd; color:#2f5a3a; }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) .avatar-Jhon { background:#2a3d4e; color:#a9c7dc; }
+    :root:not([data-theme="light"]) .avatar-Jeniffer { background:#3d2c39; color:#dba9ce; }
+    :root:not([data-theme="light"]) .avatar-Franco { background:#28382b; color:#a7cbab; }
+  }
+  :root[data-theme="dark"] .avatar-Jhon { background:#2a3d4e; color:#a9c7dc; }
+  :root[data-theme="dark"] .avatar-Jeniffer { background:#3d2c39; color:#dba9ce; }
+  :root[data-theme="dark"] .avatar-Franco { background:#28382b; color:#a7cbab; }
+
+  .modal-backdrop { background: rgba(10, 14, 20, .6); }
+
+  .comment-bubble { background: var(--surface-2); border-radius: 10px; }
+
+  ::-webkit-scrollbar { width: 8px; height: 8px; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 8px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+
+  .fade-in { animation: fadeIn .15s ease; }
+  @keyframes fadeIn { from { opacity:0; transform: translateY(4px);} to {opacity:1; transform:none;} }
+  @media (prefers-reduced-motion: reduce) {
+    .fade-in { animation: none; }
+    .task-card, .btn-primary { transition: none; }
+  }
+
+  .overdue { color: var(--overdue); font-weight:600; }
+
+  .btnDelete:hover { color: var(--overdue); }
+  .btnComments:hover { color: var(--accent-strong); }
+</style>
+</head>
+<body class="min-h-screen">
+
+<header class="app-header sticky top-0 z-20">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex flex-col gap-3">
+    <div class="flex flex-wrap items-center justify-between gap-3">
+      <div>
+        <p class="eyebrow text-[11px] font-semibold uppercase">Proyecto de tesis · Grupo 09</p>
+        <h1 class="font-display text-2xl sm:text-3xl font-semibold" style="color:var(--ink)">Tablero Kanban</h1>
+      </div>
+      <div class="flex items-center gap-3">
+        <span id="readOnlyBadge" class="hidden text-xs font-medium px-2.5 py-1 rounded-full" style="background:var(--surface-2); color:var(--ink-muted)">👁 Solo lectura</span>
+        <button id="btnNewTask"
+          class="btn-primary inline-flex items-center gap-2 font-medium px-4 py-2 rounded-lg shadow-sm">
+          <span class="text-lg leading-none">+</span> Nueva Tarea
+        </button>
+      </div>
+    </div>
+
+    <div class="flex flex-wrap items-center gap-3">
+      <div class="flex items-center gap-2">
+        <label class="text-sm font-medium" style="color:var(--ink-muted)">Responsable:</label>
+        <select id="filterAssignee" class="field text-sm rounded-md px-2 py-1.5">
+          <option value="">Todos</option>
+          <option value="Jhon">Jhon</option>
+          <option value="Jeniffer">Jeniffer</option>
+          <option value="Franco">Franco</option>
+        </select>
+      </div>
+      <div class="flex items-center gap-2">
+        <label class="text-sm font-medium" style="color:var(--ink-muted)">Prioridad:</label>
+        <select id="filterPriority" class="field text-sm rounded-md px-2 py-1.5">
+          <option value="">Todas</option>
+          <option value="Alta">Alta</option>
+          <option value="Media">Media</option>
+          <option value="Baja">Baja</option>
+        </select>
+      </div>
+      <button id="btnClearFilters" class="text-sm font-medium underline underline-offset-2" style="color:var(--accent)">
+        Limpiar filtros
+      </button>
+    </div>
+  </div>
+</header>
+
+<main class="max-w-7xl mx-auto px-4 sm:px-6 py-6">
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4" id="board">
+    <!-- Columns injected by JS -->
+  </div>
+</main>
+
+<!-- Modal -->
+<div id="modalBackdrop" class="fixed inset-0 modal-backdrop hidden items-center justify-center z-50 p-4">
+  <div class="panel rounded-xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto fade-in">
+    <div class="panel-header flex items-center justify-between px-5 py-4">
+      <h2 id="modalTitle" class="font-display text-lg font-semibold">Nueva Tarea</h2>
+      <button id="btnCloseModal" class="text-2xl leading-none" style="color:var(--ink-muted)">&times;</button>
+    </div>
+    <form id="taskForm" class="px-5 py-4 space-y-4">
+      <input type="hidden" id="taskId">
+      <div>
+        <label class="block text-sm font-medium mb-1" style="color:var(--ink-muted)">Título</label>
+        <input type="text" id="taskTitle" required maxlength="80"
+          class="field w-full rounded-md px-3 py-2 text-sm"
+          placeholder="Ej: Redactar marco teórico">
+      </div>
+      <div>
+        <label class="block text-sm font-medium mb-1" style="color:var(--ink-muted)">Descripción corta</label>
+        <textarea id="taskDesc" rows="2" maxlength="200"
+          class="field w-full rounded-md px-3 py-2 text-sm"
+          placeholder="Detalle breve de la actividad"></textarea>
+      </div>
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm font-medium mb-1" style="color:var(--ink-muted)">Responsable</label>
+          <select id="taskAssignee" class="field w-full rounded-md px-3 py-2 text-sm">
+            <option value="Jhon">Jhon</option>
+            <option value="Jeniffer">Jeniffer</option>
+            <option value="Franco">Franco</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-1" style="color:var(--ink-muted)">Prioridad</label>
+          <select id="taskPriority" class="field w-full rounded-md px-3 py-2 text-sm">
+            <option value="Baja">Baja</option>
+            <option value="Media" selected>Media</option>
+            <option value="Alta">Alta</option>
+          </select>
+        </div>
+      </div>
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm font-medium mb-1" style="color:var(--ink-muted)">Fecha límite</label>
+          <input type="date" id="taskDueDate"
+            class="field w-full rounded-md px-3 py-2 text-sm font-mono-num">
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-1" style="color:var(--ink-muted)">Columna</label>
+          <select id="taskStatus" class="field w-full rounded-md px-3 py-2 text-sm">
+            <option value="todo">Por hacer</option>
+            <option value="inprogress">En progreso</option>
+            <option value="review">En revisión</option>
+            <option value="done">Completado</option>
+          </select>
+        </div>
+      </div>
+      <div class="flex justify-end gap-2 pt-2" style="border-top:1px solid var(--border)">
+        <button type="button" id="btnCancel" class="btn-ghost px-4 py-2 text-sm rounded-md">Cancelar</button>
+        <button type="submit" class="btn-primary px-4 py-2 text-sm rounded-md font-medium">Guardar</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Comments Modal -->
+<div id="commentsBackdrop" class="fixed inset-0 modal-backdrop hidden items-center justify-center z-50 p-4">
+  <div class="panel rounded-xl shadow-2xl w-full max-w-md max-h-[85vh] flex flex-col fade-in">
+    <div class="panel-header flex items-center justify-between px-5 py-4">
+      <h2 class="font-display text-lg font-semibold">Comentarios — <span id="commentsTaskTitle"></span></h2>
+      <button id="btnCloseComments" class="text-2xl leading-none" style="color:var(--ink-muted)">&times;</button>
+    </div>
+    <div id="commentsList" class="px-5 py-4 space-y-3 overflow-y-auto flex-1"></div>
+    <form id="commentForm" class="px-5 py-4 flex gap-2" style="border-top:1px solid var(--border)">
+      <input type="hidden" id="commentTaskId">
+      <input type="text" id="commentInput" placeholder="Escribe un comentario..." maxlength="300" required
+        class="field flex-1 rounded-md px-3 py-2 text-sm">
+      <button type="submit" class="btn-primary px-4 py-2 text-sm rounded-md font-medium">Enviar</button>
+    </form>
+  </div>
+</div>
+
+<script type="application/json" id="tasksData">${dataJson}<\/script>
+<script>
+${buildDocument.toString()}
+${appMain.toString()}
+appMain();
+<\/script>
+</body>
+</html>`;
+}
+
+function appMain() {
+  const STORAGE_KEY = 'tesisGrupo09KanbanTasks';
+
+  const COLUMNS = [
+    { id: 'todo', title: 'Por hacer', accent: 'stage-todo' },
+    { id: 'inprogress', title: 'En progreso', accent: 'stage-inprogress' },
+    { id: 'review', title: 'En revisión', accent: 'stage-review' },
+    { id: 'done', title: 'Completado', accent: 'stage-done' },
+  ];
+
+  const board = document.getElementById('board');
+  const modalBackdrop = document.getElementById('modalBackdrop');
+  const taskForm = document.getElementById('taskForm');
+  const modalTitle = document.getElementById('modalTitle');
+  const commentsBackdrop = document.getElementById('commentsBackdrop');
+  const commentForm = document.getElementById('commentForm');
+  const commentsList = document.getElementById('commentsList');
+  const filterAssignee = document.getElementById('filterAssignee');
+  const filterPriority = document.getElementById('filterPriority');
+  const btnNewTask = document.getElementById('btnNewTask');
+  const btnCloseModal = document.getElementById('btnCloseModal');
+  const btnCancel = document.getElementById('btnCancel');
+  const btnCloseComments = document.getElementById('btnCloseComments');
+  const commentsTaskTitle = document.getElementById('commentsTaskTitle');
+  const commentTaskIdInput = document.getElementById('commentTaskId');
+  const commentInput = document.getElementById('commentInput');
+  const readOnlyBadge = document.getElementById('readOnlyBadge');
+
+  let tasks = [];
+  let draggedId = null;
+  let readOnly = false;
+
+  // Memoized so every publish attempt awaits the same resolution, whenever it lands.
+  const artifactReady = (window.claude && typeof window.claude.use === 'function')
+    ? window.claude.use('artifact').catch(() => null)
+    : Promise.resolve(null);
+
+  function uid() {
+    return 't_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 8);
+  }
+
+  function seedTasks() {
+    const today = new Date();
+    const inDays = (n) => {
+      const d = new Date(today);
+      d.setDate(d.getDate() + n);
+      return d.toISOString().slice(0, 10);
+    };
+    return [
+      { id: uid(), title: 'Definir planteamiento del problema', description: 'Redactar y consensuar el problema de investigación.', assignee: 'Jhon', priority: 'Alta', dueDate: inDays(3), status: 'todo', comments: [] },
+      { id: uid(), title: 'Levantamiento de antecedentes', description: 'Buscar tesis y papers relacionados.', assignee: 'Jeniffer', priority: 'Media', dueDate: inDays(7), status: 'todo', comments: [] },
+      { id: uid(), title: 'Diseño de encuesta', description: 'Elaborar instrumento de recolección de datos.', assignee: 'Franco', priority: 'Media', dueDate: inDays(5), status: 'inprogress', comments: [] },
+      { id: uid(), title: 'Marco teórico - Cap. 2', description: 'Avance del capítulo 2 para revisión del asesor.', assignee: 'Jhon', priority: 'Alta', dueDate: inDays(2), status: 'review', comments: [] },
+      { id: uid(), title: 'Aprobación de título de tesis', description: 'Título aprobado por comité.', assignee: 'Franco', priority: 'Baja', dueDate: inDays(-10), status: 'done', comments: [] },
+    ];
+  }
+
+  function readEmbedded() {
+    try {
+      const el = document.getElementById('tasksData');
+      const parsed = JSON.parse(el.textContent);
+      return Array.isArray(parsed) ? parsed : null;
+    } catch (e) { return null; }
+  }
+
+  function readLocal() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      const parsed = raw ? JSON.parse(raw) : null;
+      return Array.isArray(parsed) ? parsed : null;
+    } catch (e) { return null; }
+  }
+
+  function writeLocal() {
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks)); } catch (e) {}
+  }
+
+  async function publishState() {
+    const api = await artifactReady;
+    if (!api || readOnly) return;
+    try {
+      await api.publish(buildDocument(tasks));
+      // On success the platform reloads every open view (this one included).
+    } catch (err) {
+      const code = err && err.code;
+      if (code === 'not_writer' || code === 'not_granted' || code === 'consent_required') {
+        readOnly = true;
+        updateReadOnlyUI();
+        renderBoard();
+      }
+      // 'conflict': another publish already won and every view is being
+      // reloaded to it — no retry needed. Other codes: transient, ignored.
+    }
+  }
+
+  function saveTasks() {
+    writeLocal();
+    publishState();
+  }
+
+  function updateReadOnlyUI() {
+    readOnlyBadge.classList.toggle('hidden', !readOnly);
+    btnNewTask.classList.toggle('hidden', readOnly);
+  }
+
+  function initials(name) {
+    return name ? name.slice(0, 2).toUpperCase() : '??';
+  }
+
+  function isOverdue(task) {
+    if (!task.dueDate || task.status === 'done') return false;
+    const today = new Date().toISOString().slice(0, 10);
+    return task.dueDate < today;
+  }
+
+  function formatDate(dateStr) {
+    if (!dateStr) return 'Sin fecha';
+    const [y, m, d] = dateStr.split('-');
+    return `${d}/${m}/${y}`;
+  }
+
+  function passesFilters(task) {
+    const a = filterAssignee.value;
+    const p = filterPriority.value;
+    if (a && task.assignee !== a) return false;
+    if (p && task.priority !== p) return false;
+    return true;
+  }
+
+  function renderBoard() {
+    board.innerHTML = '';
+    COLUMNS.forEach(col => {
+      const colTasks = tasks.filter(t => t.status === col.id && passesFilters(t));
+      const colEl = document.createElement('div');
+      colEl.className = 'panel flex flex-col rounded-xl overflow-hidden';
+      colEl.innerHTML = `
+        <div class="panel-header flex items-center justify-between px-4 py-3">
+          <div class="flex items-center gap-2">
+            <span class="stage-dot ${col.accent}"></span>
+            <h3 class="font-semibold text-sm tracking-wide" style="color:var(--ink)">${col.title}</h3>
+          </div>
+          <span class="text-xs font-medium rounded-full px-2 py-0.5" style="background:var(--surface-2); color:var(--ink-muted)">${colTasks.length}</span>
+        </div>
+        <div class="column-drop flex-1 p-3 space-y-3" data-status="${col.id}"></div>
+      `;
+      board.appendChild(colEl);
+      const dropZone = colEl.querySelector('.column-drop');
+      colTasks.forEach(task => dropZone.appendChild(renderCard(task)));
+
+      dropZone.addEventListener('dragover', (e) => {
+        if (readOnly) return;
+        e.preventDefault();
+        dropZone.classList.add('drag-over');
+      });
+      dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
+      dropZone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        dropZone.classList.remove('drag-over');
+        if (draggedId && !readOnly) {
+          moveTask(draggedId, col.id);
+          draggedId = null;
+        }
+      });
+    });
+  }
+
+  function renderCard(task) {
+    const card = document.createElement('div');
+    card.className = 'task-card rounded-lg p-3 fade-in';
+    card.draggable = !readOnly;
+    card.dataset.id = task.id;
+
+    const overdueClass = isOverdue(task) ? 'overdue' : '';
+    const commentCount = (task.comments || []).length;
+
+    card.innerHTML = `
+      <div class="flex items-start justify-between gap-2 mb-1.5">
+        <h4 class="font-medium text-sm leading-snug" style="color:var(--ink)">${escapeHtml(task.title)}</h4>
+        ${readOnly ? '' : '<button class="btnDelete text-lg leading-none flex-shrink-0" style="color:var(--border)" title="Eliminar tarea">&times;</button>'}
+      </div>
+      ${task.description ? `<p class="text-xs mb-2 leading-snug" style="color:var(--ink-muted)">${escapeHtml(task.description)}</p>` : ''}
+      <div class="flex items-center gap-2 mb-2 flex-wrap">
+        <span class="priority-${task.priority} text-[11px] font-semibold px-2 py-0.5 rounded-full">${task.priority}</span>
+        <span class="avatar-${task.assignee} text-[11px] font-semibold w-5 h-5 rounded-full flex items-center justify-center" title="${task.assignee}">${initials(task.assignee)}</span>
+        <span class="text-[11px]" style="color:var(--ink-muted)">${task.assignee}</span>
+      </div>
+      <div class="flex items-center justify-between text-[11px] mb-2 font-mono-num ${overdueClass}" style="${overdueClass ? '' : 'color:var(--ink-muted)'}">
+        <span>📅 ${formatDate(task.dueDate)}</span>
+        <button class="btnComments font-medium font-sans" style="color:var(--accent)">💬 ${commentCount}</button>
+      </div>
+      <select class="statusSelect field w-full text-xs rounded-md px-2 py-1.5" ${readOnly ? 'disabled' : ''}>
+        ${COLUMNS.map(c => `<option value="${c.id}" ${c.id === task.status ? 'selected' : ''}>${c.title}</option>`).join('')}
+      </select>
+    `;
+
+    card.addEventListener('dragstart', () => {
+      if (readOnly) return;
+      draggedId = task.id;
+      card.classList.add('dragging');
+    });
+    card.addEventListener('dragend', () => card.classList.remove('dragging'));
+
+    const deleteBtn = card.querySelector('.btnDelete');
+    if (deleteBtn) {
+      deleteBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (readOnly) return;
+        if (confirm(`¿Eliminar la tarea "${task.title}"?`)) {
+          tasks = tasks.filter(t => t.id !== task.id);
+          saveTasks();
+          renderBoard();
+        }
+      });
+    }
+
+    card.querySelector('.statusSelect').addEventListener('change', (e) => {
+      if (readOnly) return;
+      moveTask(task.id, e.target.value);
+    });
+
+    card.querySelector('.btnComments').addEventListener('click', () => openComments(task.id));
+    card.addEventListener('dblclick', () => { if (!readOnly) openEditModal(task.id); });
+
+    return card;
+  }
+
+  function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+  }
+
+  function moveTask(id, newStatus) {
+    const task = tasks.find(t => t.id === id);
+    if (task && task.status !== newStatus) {
+      task.status = newStatus;
+      saveTasks();
+      renderBoard();
+    } else if (task) {
+      renderBoard();
+    }
+  }
+
+  function openNewModal() {
+    if (readOnly) return;
+    modalTitle.textContent = 'Nueva Tarea';
+    taskForm.reset();
+    document.getElementById('taskId').value = '';
+    document.getElementById('taskPriority').value = 'Media';
+    document.getElementById('taskStatus').value = 'todo';
+    modalBackdrop.classList.remove('hidden');
+    modalBackdrop.classList.add('flex');
+  }
+
+  function openEditModal(id) {
+    if (readOnly) return;
+    const task = tasks.find(t => t.id === id);
+    if (!task) return;
+    modalTitle.textContent = 'Editar Tarea';
+    document.getElementById('taskId').value = task.id;
+    document.getElementById('taskTitle').value = task.title;
+    document.getElementById('taskDesc').value = task.description || '';
+    document.getElementById('taskAssignee').value = task.assignee;
+    document.getElementById('taskPriority').value = task.priority;
+    document.getElementById('taskDueDate').value = task.dueDate || '';
+    document.getElementById('taskStatus').value = task.status;
+    modalBackdrop.classList.remove('hidden');
+    modalBackdrop.classList.add('flex');
+  }
+
+  function closeModal() {
+    modalBackdrop.classList.add('hidden');
+    modalBackdrop.classList.remove('flex');
+  }
+
+  btnNewTask.addEventListener('click', openNewModal);
+  btnCloseModal.addEventListener('click', closeModal);
+  btnCancel.addEventListener('click', closeModal);
+  modalBackdrop.addEventListener('click', (e) => { if (e.target === modalBackdrop) closeModal(); });
+
+  taskForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    if (readOnly) return;
+    const id = document.getElementById('taskId').value;
+    const title = document.getElementById('taskTitle').value.trim();
+    if (!title) return;
+
+    const data = {
+      title,
+      description: document.getElementById('taskDesc').value.trim(),
+      assignee: document.getElementById('taskAssignee').value,
+      priority: document.getElementById('taskPriority').value,
+      dueDate: document.getElementById('taskDueDate').value,
+      status: document.getElementById('taskStatus').value,
+    };
+
+    if (id) {
+      const task = tasks.find(t => t.id === id);
+      Object.assign(task, data);
+    } else {
+      tasks.push({ id: uid(), comments: [], ...data });
+    }
+    saveTasks();
+    renderBoard();
+    closeModal();
+  });
+
+  function openComments(id) {
+    const task = tasks.find(t => t.id === id);
+    if (!task) return;
+    commentTaskIdInput.value = id;
+    commentsTaskTitle.textContent = task.title;
+    renderComments(task);
+    commentForm.classList.toggle('hidden', readOnly);
+    commentsBackdrop.classList.remove('hidden');
+    commentsBackdrop.classList.add('flex');
+    if (!readOnly) commentInput.focus();
+  }
+
+  function renderComments(task) {
+    const comments = task.comments || [];
+    if (comments.length === 0) {
+      commentsList.innerHTML = '<p class="text-sm text-center py-6" style="color:var(--ink-muted)">Aún no hay comentarios.</p>';
+      return;
+    }
+    commentsList.innerHTML = comments.map(c => `
+      <div class="comment-bubble px-3 py-2">
+        <p class="text-sm" style="color:var(--ink)">${escapeHtml(c.text)}</p>
+        <span class="text-[11px] font-mono-num" style="color:var(--ink-muted)">${c.date}</span>
+      </div>
+    `).join('');
+    commentsList.scrollTop = commentsList.scrollHeight;
+  }
+
+  function closeComments() {
+    commentsBackdrop.classList.add('hidden');
+    commentsBackdrop.classList.remove('flex');
+  }
+
+  btnCloseComments.addEventListener('click', closeComments);
+  commentsBackdrop.addEventListener('click', (e) => { if (e.target === commentsBackdrop) closeComments(); });
+
+  commentForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    if (readOnly) return;
+    const id = commentTaskIdInput.value;
+    const task = tasks.find(t => t.id === id);
+    if (!task) return;
+    const text = commentInput.value.trim();
+    if (!text) return;
+    if (!task.comments) task.comments = [];
+    const now = new Date();
+    task.comments.push({
+      text,
+      date: now.toLocaleString('es-PE', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }),
+    });
+    saveTasks();
+    commentInput.value = '';
+    renderComments(task);
+    renderBoard();
+  });
+
+  document.getElementById('btnClearFilters').addEventListener('click', () => {
+    filterAssignee.value = '';
+    filterPriority.value = '';
+    renderBoard();
+  });
+  filterAssignee.addEventListener('change', renderBoard);
+  filterPriority.addEventListener('change', renderBoard);
+
+  // ---- Init ----
+  // Priority: this browser's own local cache first (so a standalone/offline
+  // copy of the file keeps working exactly as before), then the shared
+  // snapshot embedded in the page, then a fresh demo seed as last resort.
+  const embedded = readEmbedded();
+  const cachedLocal = readLocal();
+  tasks = cachedLocal || embedded || seedTasks();
+  updateReadOnlyUI();
+  renderBoard();
+
+  // Once we know whether this view can run the `artifact` capability, the
+  // shared published snapshot (if any) wins over a stale local cache.
+  artifactReady.then((api) => {
+    if (api && embedded) {
+      tasks = embedded;
+      renderBoard();
+    }
+  });
+}
+
+appMain();
+</script>
+</body>
+</html>
