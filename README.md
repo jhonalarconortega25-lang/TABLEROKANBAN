@@ -13,23 +13,27 @@ npm run build      # compila a dist/ (sitio estático, desplegable en GitHub Pag
 
 La primera vez se cargan **datos de ejemplo** (proyecto Capstone G09). Desde *Configuración* puedes borrarlos y empezar de cero, exportar/importar copias en JSON o restaurarlos.
 
-## Versión compartida del equipo (claude.ai)
+## Abrir sin cuenta e instalar como app (GitHub Pages + Supabase)
 
-La versión que usa el grupo (Jhon, Youssep, Mauricio, Gabriela y Ashley) está publicada como artefacto de claude.ai con **base de datos compartida en tiempo real**: https://claude.ai/artifact/4ZZmcZgq6dLGuRYBvvHLBM
+Enlace del equipo (cuando esté publicado): **https://jhonalarconortega25-lang.github.io/TABLEROKANBAN/**
 
-- Se compila con `npm run build:artifact` (`VITE_BACKEND=artifact`): sin localStorage; cada actividad, sprint, reunión, integrante e hito es un documento de la base del artefacto (`src/lib/persistence/artifactDbSync.ts`).
-- Para poder **editar**, cada integrante debe estar invitado por correo como **Editor** desde el menú *Compartir* del artefacto (sin enlace público) y haber iniciado sesión en claude.ai.
-- Los adjuntos se guardan como enlaces (Drive, OneDrive…), no como archivos.
+- Cualquiera lo abre **sin iniciar sesión**. Los cambios se guardan en la base de datos del equipo (Supabase) y aparecen al instante a todos.
+- Botón **Instalar app** en la barra superior: en Android, PC y Mac abre el diálogo de instalación; en iPhone muestra los pasos (Safari → Compartir → Agregar a inicio).
+- Si no hay internet, la app abre igual y avisa que trabaja sin conexión.
 
-## Publicar y compartir con el equipo (GitHub Pages)
+### Configuración (una sola vez, la hace el dueño del repositorio)
 
-1. En GitHub: **Settings → Pages → Build and deployment → Source: “GitHub Actions”** (solo una vez).
-2. Cada push a `main` ejecuta las pruebas, compila y publica la app en
-   **https://jhonalarconortega25-lang.github.io/TABLEROKANBAN/**
-   (también se puede lanzar a mano desde **Actions → Publicar en GitHub Pages → Run workflow**).
-3. Comparte ese enlace con el equipo.
+1. **Publicar:** hacer merge del pull request y en GitHub ir a **Settings → Pages → Source: GitHub Actions**.
+2. **Crear la base:** en [supabase.com](https://supabase.com) crear un proyecto gratis → **SQL Editor** → pegar y ejecutar todo `supabase/schema.sql`.
+3. **Conectar:** en Supabase, **Project Settings → API**, copiar **Project URL** y la clave **anon public**. En GitHub, **Settings → Secrets and variables → Actions → Variables**, crear `VITE_SUPABASE_URL` y `VITE_SUPABASE_ANON_KEY` con esos valores.
+4. **Publicar de nuevo:** **Actions → Publicar en GitHub Pages → Run workflow**.
+5. Abrir el enlace primero desde un solo dispositivo: ese primer acceso carga el equipo y el plan de ejemplo en la base. Después compartir el enlace.
 
-> Sin Supabase, cada persona guarda sus datos en su propio navegador. Para que **todo el equipo vea y edite los mismos datos en tiempo real**, sigue la sección *Persistencia → Multiusuario* y guarda `VITE_SUPABASE_URL` y `VITE_SUPABASE_ANON_KEY` como **variables** del repositorio (*Settings → Secrets and variables → Actions → Variables*); luego vuelve a ejecutar el workflow.
+> La clave *anon* es pública por diseño (va dentro de la app). La política de acceso incluida deja leer y editar a cualquiera que tenga el enlace, que es lo pedido: abrir sin cuenta. No compartas la clave *service_role*.
+
+## Versión en claude.ai (alternativa con inicio de sesión)
+
+También existe una copia publicada como artefacto de claude.ai con base de datos compartida: https://claude.ai/artifact/4ZZmcZgq6dLGuRYBvvHLBM. Requiere que cada integrante inicie sesión en claude.ai y sea invitado como **Editor**. Se compila con `npm run build:artifact`.
 
 ## Arquitectura
 

@@ -10,6 +10,7 @@ import { matchesText, progressOf } from '../lib/metrics';
 import { daysBetween, fmtDateTime, fmtShort, relativeDays } from '../lib/dates';
 import { useSyncStatus } from '../lib/persistence/supabaseSync';
 import { Avatar, IconButton, StatusBadge, cx } from './ui';
+import { InstallButton } from './InstallButton';
 
 const NAV = [
   { to: '/', label: 'Dashboard', icon: LayoutDashboard },
@@ -93,6 +94,7 @@ function Topbar() {
       <IconButton label="Menú" className="lg:hidden" onClick={() => setOpen(true)}><Menu size={19} /></IconButton>
       <GlobalSearch />
       <div className="ml-auto flex items-center gap-1.5">
+        <InstallButton />
         <Notifications />
         <button type="button" onClick={() => useUI.getState().openNewTask()} className="inline-flex h-9 items-center gap-1.5 rounded-full bg-gold-500 px-4 text-sm font-bold text-brand-900 shadow-sm hover:bg-gold-400">
           <Plus size={16} /> <span className="hidden sm:inline">Nueva actividad</span>

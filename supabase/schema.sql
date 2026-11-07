@@ -90,8 +90,16 @@ create table if not exists history (
 );
 create index if not exists history_at_idx on history(at desc);
 
--- Tiempo real
-alter publication supabase_realtime add table project, members, sprints, meetings, tasks, milestones, history;
+-- Tiempo real (se puede ejecutar varias veces sin error)
+do $$
+declare t text;
+begin
+  foreach t in array array['project','members','sprints','meetings','tasks','milestones','history'] loop
+    if not exists (select 1 from pg_publication_tables where pubname = 'supabase_realtime' and schemaname = 'public' and tablename = t) then
+      execute format('alter publication supabase_realtime add table public.%I', t);
+    end if;
+  end loop;
+end $$;
 
 -- Seguridad (RLS). Política abierta para un equipo pequeño con la clave anónima.
 -- Para producción, reemplazar por políticas basadas en auth.uid() y una tabla de pertenencia al proyecto.

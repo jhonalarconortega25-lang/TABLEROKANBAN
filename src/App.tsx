@@ -33,10 +33,11 @@ export default function App() {
   const sync = useSyncStatus();
   // Dentro de claude.ai solo un '#nombre' simple viaja con el enlace: se usa un router en memoria.
   const Router = IS_ARTIFACT ? MemoryRouter : HashRouter;
-  if (IS_ARTIFACT && !sync.loaded) return <SharedLoading detail={sync.detail} />;
+  if (!sync.loaded) return <SharedLoading detail={sync.detail} />;
   return (
     <Router>
       {sync.readOnly && IS_ARTIFACT && <ReadOnlyBanner />}
+      {sync.mode === 'supabase' && !sync.ok && <OfflineBanner detail={sync.detail} />}
       <Layout key={day}>
         <Suspense fallback={<div className="py-20 text-center text-sm text-slate-400">Cargando…</div>}>
           <Routes>
@@ -79,4 +80,8 @@ function ReadOnlyBanner() {
       Estás en modo solo lectura: tus cambios no se guardarán. Pide a Jhon que te invite al artefacto como <b>Editor</b>.
     </div>
   );
+}
+
+function OfflineBanner({ detail }: { detail: string }) {
+  return <div className="relative z-50 bg-gold-50 px-4 py-2 text-center text-xs text-gold-800 ring-1 ring-gold-200">{detail}</div>;
 }
