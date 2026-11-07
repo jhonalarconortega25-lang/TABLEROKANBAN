@@ -9,7 +9,7 @@ const page = [
   pick(/<link href="https:\/\/fonts[^>]*>/g),
   pick(/<link rel="stylesheet"[^>]*>/g),
   pick(/<link rel="modulepreload"[^>]*>/g),
-  '<style>html,body{background:#f8fafc}</style>',
+  '<style>html{background:#f2f1ec}</style>',
   '<div id="root"></div>',
   pick(/<script type="module"[^>]*><\/script>/g),
 ].filter(Boolean).join('\n');

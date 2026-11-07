@@ -9,7 +9,7 @@ import { useData, useToday } from '../hooks/useData';
 import { matchesText, progressOf } from '../lib/metrics';
 import { daysBetween, fmtDateTime, fmtShort, relativeDays } from '../lib/dates';
 import { useSyncStatus } from '../lib/persistence/supabaseSync';
-import { Avatar, IconButton, ProgressBar, StatusBadge, cx } from './ui';
+import { Avatar, IconButton, StatusBadge, cx } from './ui';
 
 const NAV = [
   { to: '/', label: 'Dashboard', icon: LayoutDashboard },
@@ -46,32 +46,39 @@ function Sidebar({ open }: { open: boolean }) {
   const progress = progressOf(tasks, project.weightingMode);
   const sync = useSyncStatus();
   return (
-    <aside className={cx('fixed inset-y-0 left-0 z-40 flex w-60 flex-col border-r border-slate-200 bg-white transition-transform duration-200 lg:translate-x-0', open ? 'translate-x-0 shadow-xl' : '-translate-x-full')}>
-      <div className="flex items-center gap-2.5 px-4 pb-4 pt-5">
-        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-600 text-white">
-          <svg viewBox="0 0 32 32" width="18" height="18"><path d="M8 9h16M8 16h11M8 23h6" stroke="currentColor" strokeWidth="3.2" strokeLinecap="round" /></svg>
+    <aside className={cx('fixed inset-y-0 left-0 z-40 flex w-60 flex-col bg-brand-700 text-white transition-transform duration-200 lg:translate-x-0', open ? 'translate-x-0 shadow-xl' : '-translate-x-full')}>
+      <div className="px-4 pb-5 pt-6">
+        <div className="flex items-center gap-2.5">
+          <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gold-500 text-brand-900">
+            <svg viewBox="0 0 32 32" width="18" height="18"><path d="M8 9h16M8 16h11M8 23h6" stroke="currentColor" strokeWidth="3.4" strokeLinecap="round" /></svg>
+          </div>
+          <p className="font-display text-[15px] font-extrabold uppercase leading-tight tracking-wide">Project<br />Planner</p>
         </div>
-        <div className="min-w-0">
-          <p className="text-sm font-semibold text-slate-900">Project Planner</p>
-          <p className="truncate text-[11px] text-slate-500" title={project.name}>{project.name}</p>
-        </div>
+        <p className="mt-3 line-clamp-2 text-[11px] leading-snug text-brand-100" title={project.name}>{project.name}</p>
       </div>
-      <nav className="flex-1 space-y-0.5 px-2.5">
-        {NAV.map(({ to, label, icon: Icon }) => (
+      <nav className="flex-1 space-y-1 px-3">
+        {NAV.map(({ to, label, icon: Icon }, i) => (
           <NavLink key={to} to={to} end={to === '/'}
-            className={({ isActive }) => cx('flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm transition-colors', isActive ? 'bg-brand-50 font-medium text-brand-700' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900')}>
-            <Icon size={17} strokeWidth={1.9} /> {label}
+            className={({ isActive }) => cx('group flex items-center gap-2.5 rounded-full py-1.5 pl-1.5 pr-3 text-sm font-semibold transition-colors', isActive ? 'bg-white text-brand-700' : 'text-brand-50/90 hover:bg-white/10 hover:text-white')}>
+            {({ isActive }) => (
+              <>
+                <span className={cx('flex h-7 w-7 items-center justify-center rounded-full text-[11px] font-extrabold', isActive ? 'bg-brand-600 text-white' : 'border-2 border-white/60 text-white group-hover:border-white')}>
+                  {i + 1}
+                </span>
+                <Icon size={16} strokeWidth={2} className="opacity-80" /> {label}
+              </>
+            )}
           </NavLink>
         ))}
       </nav>
-      <div className="m-3 rounded-xl border border-slate-100 bg-slate-50 p-3">
+      <div className="m-3 rounded-2xl border-2 border-dashed border-white/30 p-3">
         <div className="mb-1.5 flex items-center justify-between text-xs">
-          <span className="font-medium text-slate-600">Avance del proyecto</span>
-          <span className="font-semibold text-slate-900">{progress}%</span>
+          <span className="font-display font-bold uppercase tracking-wide text-brand-100">Avance</span>
+          <span className="font-display text-base font-extrabold text-gold-300">{progress}%</span>
         </div>
-        <ProgressBar value={progress} />
-        <p className="mt-2.5 flex items-center gap-1.5 text-[11px] text-slate-500" title={sync.detail}>
-          {sync.mode === 'local' ? <CloudOff size={12} /> : <Cloud size={12} className={sync.ok ? 'text-emerald-600' : 'text-amber-600'} />}
+        <div className="h-2 overflow-hidden rounded-full bg-white/15"><div className="h-full rounded-full bg-gold-500 transition-[width] duration-500" style={{ width: `${progress}%` }} /></div>
+        <p className="mt-2.5 flex items-center gap-1.5 text-[11px] text-brand-100" title={sync.detail}>
+          {sync.mode === 'local' ? <CloudOff size={12} /> : <Cloud size={12} className={sync.ok ? 'text-gold-300' : 'text-red-300'} />}
           {sync.mode === 'local' ? 'Guardado local automático' : sync.readOnly ? 'Solo lectura' : sync.ok ? 'Guardado para todo el equipo' : 'Reconectando…'}
         </p>
       </div>
@@ -82,12 +89,12 @@ function Sidebar({ open }: { open: boolean }) {
 function Topbar() {
   const setOpen = useUI((s) => s.setSidebar);
   return (
-    <header className="sticky top-0 z-20 flex h-14 items-center gap-2 border-b border-slate-200 bg-white/85 px-3 backdrop-blur sm:px-6 lg:px-8">
+    <header className="sticky top-0 z-20 flex h-14 items-center gap-2 border-b-4 border-brand-600 bg-white/95 px-3 backdrop-blur sm:px-6 lg:px-8">
       <IconButton label="Menú" className="lg:hidden" onClick={() => setOpen(true)}><Menu size={19} /></IconButton>
       <GlobalSearch />
       <div className="ml-auto flex items-center gap-1.5">
         <Notifications />
-        <button type="button" onClick={() => useUI.getState().openNewTask()} className="inline-flex h-9 items-center gap-1.5 rounded-lg bg-brand-600 px-3 text-sm font-medium text-white shadow-sm hover:bg-brand-700">
+        <button type="button" onClick={() => useUI.getState().openNewTask()} className="inline-flex h-9 items-center gap-1.5 rounded-full bg-gold-500 px-4 text-sm font-bold text-brand-900 shadow-sm hover:bg-gold-400">
           <Plus size={16} /> <span className="hidden sm:inline">Nueva actividad</span>
         </button>
       </div>
@@ -142,7 +149,7 @@ function GlobalSearch() {
       <Search size={16} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
       <input ref={inputRef} value={q} onChange={(e) => { setQ(e.target.value); setOpen(true); }} onFocus={() => setOpen(true)}
         placeholder="Buscar actividades, reuniones, personas…"
-        className="h-9 w-full rounded-lg border border-slate-200 bg-slate-50 pl-9 pr-14 text-sm placeholder:text-slate-400 focus:border-brand-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-500/20" />
+        className="h-9 w-full rounded-full border border-brand-200 bg-brand-50/50 pl-9 pr-14 text-sm placeholder:text-slate-400 focus:border-brand-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-500/20" />
       <kbd className="pointer-events-none absolute right-2.5 top-1/2 hidden -translate-y-1/2 rounded border border-slate-200 bg-white px-1.5 text-[10px] text-slate-400 sm:block">Ctrl K</kbd>
       {open && results && (
         <div className="absolute left-0 right-0 top-11 z-50 max-h-[70vh] overflow-y-auto rounded-xl border border-slate-200 bg-white p-1.5 shadow-xl animate-fade-in sm:min-w-[420px]">
@@ -224,7 +231,7 @@ function Notifications() {
     try { localStorage.setItem(SEEN_KEY, JSON.stringify(ids)); } catch { /* almacenamiento no disponible */ }
   };
   const icon = (k: Alert['kind']) =>
-    k === 'overdue' ? <AlertTriangle size={15} className="text-red-600" /> : k === 'meeting' ? <CalendarClock size={15} className="text-brand-600" /> : k === 'milestone' ? <Flag size={15} className="text-violet-600" /> : <Clock size={15} className="text-amber-600" />;
+    k === 'overdue' ? <AlertTriangle size={15} className="text-red-600" /> : k === 'meeting' ? <CalendarClock size={15} className="text-brand-600" /> : k === 'milestone' ? <Flag size={15} className="text-bark-600" /> : <Clock size={15} className="text-amber-600" />;
 
   return (
     <div ref={ref} className="relative">

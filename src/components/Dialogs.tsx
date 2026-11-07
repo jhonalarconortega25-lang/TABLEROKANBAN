@@ -31,7 +31,7 @@ export function Toasts() {
     <div className="pointer-events-none fixed bottom-4 right-4 z-[60] flex w-[calc(100%-2rem)] max-w-sm flex-col gap-2" aria-live="polite">
       {toasts.map((t) => (
         <div key={t.id} onClick={() => dismiss(t.id)} className="pointer-events-auto flex cursor-pointer items-start gap-2.5 rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-slate-700 shadow-lg animate-fade-in">
-          {t.kind === 'success' ? <CheckCircle2 size={17} className="mt-px text-emerald-600" /> : t.kind === 'error' ? <XCircle size={17} className="mt-px text-red-600" /> : <Info size={17} className="mt-px text-brand-600" />}
+          {t.kind === 'success' ? <CheckCircle2 size={17} className="mt-px text-brand-600" /> : t.kind === 'error' ? <XCircle size={17} className="mt-px text-red-600" /> : <Info size={17} className="mt-px text-brand-600" />}
           <span>{t.text}</span>
         </div>
       ))}
@@ -248,7 +248,7 @@ export function MeetingModal() {
                     {members.map((m) => <option key={m.id} value={m.id}>{m.name}</option>)}
                   </Select>
                   {linked ? (
-                    <Button size="sm" variant="ghost" onClick={() => { close(); useUI.getState().openTask(linked.id); }} className="!text-emerald-700"><CheckCircle2 size={14} /> Ver tarea</Button>
+                    <Button size="sm" variant="ghost" onClick={() => { close(); useUI.getState().openTask(linked.id); }} className="!text-brand-700"><CheckCircle2 size={14} /> Ver tarea</Button>
                   ) : (
                     <Button size="sm" onClick={() => createTaskFrom(a.id)} disabled={!a.text.trim()}><ListPlus size={14} /> Crear tarea</Button>
                   )}

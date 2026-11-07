@@ -235,7 +235,7 @@ function TaskDetail({ task, onClose }: { task: Task; onClose: () => void }) {
           <ul className="space-y-0.5">
             {task.checklist.map((c) => (
               <li key={c.id} className="group flex items-center gap-2 rounded-lg px-1.5 py-1 hover:bg-slate-50">
-                <input type="checkbox" checked={c.done} onChange={(e) => p.updateChecklistItem(task.id, c.id, { done: e.target.checked })} className="h-4 w-4 cursor-pointer rounded border-slate-300 text-brand-600 accent-blue-600" />
+                <input type="checkbox" checked={c.done} onChange={(e) => p.updateChecklistItem(task.id, c.id, { done: e.target.checked })} className="h-4 w-4 cursor-pointer rounded border-slate-300 text-brand-600 accent-brand-600" />
                 <ChecklistText text={c.text} done={c.done} onCommit={(text) => p.updateChecklistItem(task.id, c.id, { text })} />
                 <IconButton label="Eliminar subtarea" onClick={() => p.removeChecklistItem(task.id, c.id)} className="!h-6 !w-6 opacity-0 group-hover:opacity-100 focus:opacity-100"><X size={14} /></IconButton>
               </li>

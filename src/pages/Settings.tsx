@@ -95,7 +95,7 @@ export default function Settings() {
             <div className="space-y-2 px-5 pb-5">
               {([['equal', 'Pesos iguales (recomendado)', 'Avance = completadas / total × 100. Todas las actividades valen lo mismo.'], ['weighted', 'Ponderado por complejidad (beta)', 'Cada actividad tiene un peso 1–5 editable en su detalle. Avance = Σ peso completadas / Σ peso total.']] as const).map(([v, l, d]) => (
                 <label key={v} className={cx('flex cursor-pointer gap-3 rounded-lg border p-3', project.weightingMode === v ? 'border-brand-300 bg-brand-50/50' : 'border-slate-200 hover:bg-slate-50')}>
-                  <input type="radio" name="weighting" checked={project.weightingMode === v} onChange={() => { st.updateProject({ weightingMode: v }); toast('Método de cálculo actualizado'); }} className="mt-0.5 accent-blue-600" />
+                  <input type="radio" name="weighting" checked={project.weightingMode === v} onChange={() => { st.updateProject({ weightingMode: v }); toast('Método de cálculo actualizado'); }} className="mt-0.5 accent-brand-600" />
                   <span><span className="block text-sm font-medium text-slate-800">{l}</span><span className="text-xs text-slate-500">{d}</span></span>
                 </label>
               ))}
@@ -106,7 +106,7 @@ export default function Settings() {
             <CardHeader title="Almacenamiento y sincronización" />
             <div className="px-5 pb-5 text-sm">
               <p className="flex items-center gap-2 font-medium text-slate-800">
-                {sync.mode !== 'local' ? <Cloud size={16} className={sync.ok ? 'text-emerald-600' : 'text-amber-600'} /> : <CloudOff size={16} className="text-slate-400" />}
+                {sync.mode !== 'local' ? <Cloud size={16} className={sync.ok ? 'text-brand-600' : 'text-amber-600'} /> : <CloudOff size={16} className="text-slate-400" />}
                 {sync.mode === 'shared' ? 'Base de datos compartida del equipo (tiempo real)' : sync.mode === 'supabase' ? 'Supabase (multiusuario, tiempo real)' : 'Local (este navegador)'}
               </p>
               <p className="mt-1 text-xs text-slate-500">{sync.detail}</p>

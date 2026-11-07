@@ -49,7 +49,7 @@ export default function Team() {
                   <div className="flex items-start gap-3">
                     <Avatar member={s.member} size={44} />
                     <div className="min-w-0 flex-1">
-                      <p className="font-semibold text-slate-900">{s.member.name}</p>
+                      <p className="font-display font-extrabold uppercase tracking-wide text-brand-700">{s.member.name}</p>
                       <p className="truncate text-xs text-slate-500">{s.member.role || 'Sin rol definido'}</p>
                       {s.member.email && <a href={`mailto:${s.member.email}`} className="mt-0.5 inline-flex items-center gap-1 text-xs text-brand-700 hover:underline"><Mail size={11} />{s.member.email}</a>}
                     </div>
@@ -59,13 +59,13 @@ export default function Team() {
                     </div>
                   </div>
                   <div className="mt-4 grid grid-cols-4 gap-2 text-center">
-                    {[['Asignadas', s.assigned, 'text-slate-900'], ['Completadas', s.completed, 'text-emerald-700'], ['Pendientes', s.open, 'text-slate-900'], ['Atrasadas', s.overdue, s.overdue ? 'text-red-600' : 'text-slate-400']].map(([l, v, c]) => (
-                      <div key={l as string} className="rounded-lg bg-slate-50 py-2"><p className={cx('text-lg font-semibold', c as string)}>{v}</p><p className="text-[10px] text-slate-500">{l}</p></div>
+                    {[['Asignadas', s.assigned, 'text-slate-900'], ['Completadas', s.completed, 'text-brand-700'], ['Pendientes', s.open, 'text-slate-900'], ['Atrasadas', s.overdue, s.overdue ? 'text-red-600' : 'text-slate-400']].map(([l, v, c]) => (
+                      <div key={l as string} className="rounded-lg border-2 border-brand-100 py-2"><p className={cx('text-lg font-semibold', c as string)}>{v}</p><p className="text-[10px] text-slate-500">{l}</p></div>
                     ))}
                   </div>
                   <div className="mt-3">
                     <div className="mb-1 flex justify-between text-xs"><span className="text-slate-500">Carga abierta</span><span className="text-slate-600">{s.open} act.{s.collaborating > 0 && ` · colabora en ${s.collaborating}`}</span></div>
-                    <div className="h-1.5 overflow-hidden rounded-full bg-slate-100"><div className={cx('h-full rounded-full', overloaded ? 'bg-amber-500' : 'bg-slate-400')} style={{ width: `${(s.open / maxOpen) * 100}%` }} /></div>
+                    <div className="h-1.5 overflow-hidden rounded-full bg-slate-100"><div className={cx('h-full rounded-full', overloaded ? 'bg-gold-500' : 'bg-brand-400')} style={{ width: `${(s.open / maxOpen) * 100}%` }} /></div>
                     {overloaded && <p className="mt-1 flex items-center gap-1 text-[11px] text-amber-700"><AlertTriangle size={11} /> Carga superior al promedio del equipo</p>}
                   </div>
                   <div className="mt-3">
@@ -95,17 +95,17 @@ export default function Team() {
 
           <Card>
             <CardHeader title="Distribución de la carga de trabajo" subtitle={unassigned ? `${unassigned} actividad(es) abiertas sin responsable` : 'Actividades por integrante y estado'}
-              action={<Legend items={[{ label: 'Completadas', color: CATEGORICAL[2] }, { label: 'En curso', color: CATEGORICAL[0] }, { label: 'Pendientes', color: '#94a3b8' }]} />} />
+              action={<Legend items={[{ label: 'Completadas', color: '#3f7a22' }, { label: 'En curso', color: '#dfa020' }, { label: 'Pendientes', color: '#a8a99a' }]} />} />
             <div className="px-2 pb-4" style={{ height: Math.max(160, stats.length * 52 + 40) }}>
               <ResponsiveContainer>
                 <BarChart data={chart} layout="vertical" barCategoryGap="28%" margin={{ left: 8, right: 16 }}>
                   <CartesianGrid {...GRID} horizontal={false} vertical />
                   <XAxis type="number" allowDecimals={false} {...AXIS} />
                   <YAxis type="category" dataKey="name" {...AXIS} width={84} />
-                  <Tooltip cursor={{ fill: '#f1f5f9' }} content={<ChartTooltip />} />
-                  <Bar dataKey="Completadas" stackId="a" fill={CATEGORICAL[2]} stroke="#fff" strokeWidth={1} />
-                  <Bar dataKey="En curso" stackId="a" fill={CATEGORICAL[0]} stroke="#fff" strokeWidth={1} />
-                  <Bar dataKey="Pendientes" stackId="a" fill="#94a3b8" stroke="#fff" strokeWidth={1} radius={[0, 4, 4, 0]} />
+                  <Tooltip cursor={{ fill: '#f1f6ec' }} content={<ChartTooltip />} />
+                  <Bar dataKey="Completadas" stackId="a" fill="#3f7a22" stroke="#fff" strokeWidth={1} />
+                  <Bar dataKey="En curso" stackId="a" fill="#dfa020" stroke="#fff" strokeWidth={1} />
+                  <Bar dataKey="Pendientes" stackId="a" fill="#a8a99a" stroke="#fff" strokeWidth={1} radius={[0, 4, 4, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             </div>

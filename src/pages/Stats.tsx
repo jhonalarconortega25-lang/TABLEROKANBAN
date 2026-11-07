@@ -35,8 +35,8 @@ export default function Stats() {
         <Card className="p-4 sm:col-span-2">
           <p className="text-xs font-medium text-slate-500">Avance general del proyecto</p>
           <div className="mt-1 flex items-baseline gap-3">
-            <span className="text-3xl font-semibold text-slate-900">{progress}%</span>
-            <span className={cx('text-xs font-medium', progress >= expected ? 'text-emerald-700' : 'text-amber-700')}>{progress >= expected ? '▲' : '▼'} esperado {expected}%</span>
+            <span className="font-display text-4xl font-extrabold text-brand-700">{progress}%</span>
+            <span className={cx('text-xs font-medium', progress >= expected ? 'text-brand-700' : 'text-bark-600')}>{progress >= expected ? '▲' : '▼'} esperado {expected}%</span>
           </div>
           <ProgressBar value={progress} height={8} className="mt-3" />
           <p className="mt-2 text-[11px] text-slate-400">
@@ -68,20 +68,20 @@ export default function Stats() {
                 <CartesianGrid {...GRID} />
                 <XAxis dataKey="label" {...AXIS} />
                 <YAxis allowDecimals={false} {...AXIS} width={28} />
-                <Tooltip cursor={{ fill: '#f1f5f9' }} content={<ChartTooltip />} labelFormatter={(l) => `Semana del ${l}`} />
-                <Bar dataKey="completed" name="Completadas" fill="#2a78d6" radius={[4, 4, 0, 0]} maxBarSize={36} />
+                <Tooltip cursor={{ fill: '#f1f6ec' }} content={<ChartTooltip />} labelFormatter={(l) => `Semana del ${l}`} />
+                <Bar dataKey="completed" name="Completadas" fill="#3f7a22" radius={[4, 4, 0, 0]} maxBarSize={36} />
               </BarChart>
             </ResponsiveContainer>
           </div>
           <div className="h-[220px]">
             <ResponsiveContainer>
               <AreaChart data={weekly}>
-                <defs><linearGradient id="cum" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#1baf7a" stopOpacity={0.25} /><stop offset="100%" stopColor="#1baf7a" stopOpacity={0} /></linearGradient></defs>
+                <defs><linearGradient id="cum" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#dfa020" stopOpacity={0.25} /><stop offset="100%" stopColor="#dfa020" stopOpacity={0} /></linearGradient></defs>
                 <CartesianGrid {...GRID} />
                 <XAxis dataKey="label" {...AXIS} />
                 <YAxis allowDecimals={false} {...AXIS} width={28} domain={[0, counts.total]} />
                 <Tooltip content={<ChartTooltip />} labelFormatter={(l) => `Semana del ${l}`} />
-                <Area type="monotone" dataKey="cumulative" name="Acumulado" stroke="#1baf7a" strokeWidth={2} fill="url(#cum)" dot={{ r: 3, strokeWidth: 2, fill: '#fff' }} />
+                <Area type="monotone" dataKey="cumulative" name="Acumulado" stroke="#dfa020" strokeWidth={2} fill="url(#cum)" dot={{ r: 3, strokeWidth: 2, fill: '#fff' }} />
               </AreaChart>
             </ResponsiveContainer>
           </div>
@@ -98,8 +98,8 @@ export default function Stats() {
                   <CartesianGrid {...GRID} />
                   <XAxis dataKey="name" {...AXIS} />
                   <YAxis domain={[0, 100]} {...AXIS} width={34} tickFormatter={(v) => `${v}%`} />
-                  <Tooltip cursor={{ fill: '#f1f5f9' }} content={<ChartTooltip unit="%" />} labelFormatter={(l, p) => `${l} · ${p?.[0]?.payload?.full ?? ''}`} />
-                  <Bar dataKey="Avance" radius={[4, 4, 0, 0]} maxBarSize={44}>{sprints.map((s) => <Cell key={s.sprint.id} fill={s.progress === 100 ? '#1baf7a' : '#2a78d6'} />)}</Bar>
+                  <Tooltip cursor={{ fill: '#f1f6ec' }} content={<ChartTooltip unit="%" />} labelFormatter={(l, p) => `${l} · ${p?.[0]?.payload?.full ?? ''}`} />
+                  <Bar dataKey="Avance" radius={[4, 4, 0, 0]} maxBarSize={44}>{sprints.map((s) => <Cell key={s.sprint.id} fill={s.progress === 100 ? '#2f5f18' : '#3f7a22'} />)}</Bar>
                 </BarChart>
               </ResponsiveContainer>
             )}
@@ -126,7 +126,7 @@ export default function Stats() {
         <Card>
           <CardHeader title="Burndown del sprint" subtitle="Actividades restantes frente a la línea ideal"
             action={<Select className="!h-8 !w-auto text-xs" value={burnSprint.sprint.id} onChange={(e) => setBurnId(e.target.value)}>{sprints.map((s) => <option key={s.sprint.id} value={s.sprint.id}>Sprint {s.sprint.number}</option>)}</Select>} />
-          <div className="px-5"><Legend items={[{ label: 'Restantes', color: '#2a78d6' }, { label: 'Ideal', color: '#94a3b8', dashed: true }]} /></div>
+          <div className="px-5"><Legend items={[{ label: 'Restantes', color: '#3f7a22' }, { label: 'Ideal', color: '#94a3b8', dashed: true }]} /></div>
           <div className="h-[240px] px-2 pb-4 pt-2">
             <ResponsiveContainer>
               <LineChart data={burndown}>
@@ -135,7 +135,7 @@ export default function Stats() {
                 <YAxis allowDecimals={false} {...AXIS} width={28} />
                 <Tooltip content={<ChartTooltip />} />
                 <Line type="linear" dataKey="ideal" name="Ideal" stroke="#94a3b8" strokeDasharray="5 4" strokeWidth={2} dot={false} />
-                <Line type="stepAfter" dataKey="remaining" name="Restantes" stroke="#2a78d6" strokeWidth={2} dot={false} connectNulls={false} />
+                <Line type="stepAfter" dataKey="remaining" name="Restantes" stroke="#3f7a22" strokeWidth={2} dot={false} connectNulls={false} />
               </LineChart>
             </ResponsiveContainer>
           </div>

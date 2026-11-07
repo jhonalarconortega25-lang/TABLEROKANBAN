@@ -56,6 +56,13 @@ export default function Kanban() {
   );
 }
 
+const COLUMN_HEAD: Record<TaskStatus, string> = {
+  pending: 'bg-brand-800 text-white',
+  in_progress: 'bg-gold-500 text-brand-900',
+  review: 'bg-bark-500 text-white',
+  done: 'bg-brand-600 text-white',
+};
+
 function Column({ status, tasks, sprintFilter }: { status: TaskStatus; tasks: Task[]; sprintFilter: string }) {
   const { setNodeRef, isOver } = useDroppable({ id: status });
   const [adding, setAdding] = useState(false);
@@ -67,14 +74,13 @@ function Column({ status, tasks, sprintFilter }: { status: TaskStatus; tasks: Ta
     useUI.getState().toast('Actividad creada');
   };
   return (
-    <section className="flex w-[82vw] max-w-[340px] shrink-0 snap-start flex-col rounded-xl bg-slate-100/70 sm:w-[300px] lg:w-auto lg:max-w-none">
-      <header className="flex items-center gap-2 px-3 pb-2 pt-3">
-        <span className={cx('h-2 w-2 rounded-full', STATUS_META[status].dot)} />
-        <h2 className="text-sm font-semibold text-slate-700">{STATUS_META[status].label}</h2>
-        <span className="rounded-full bg-white px-2 text-xs font-medium text-slate-500">{tasks.length}</span>
-        <button type="button" onClick={() => setAdding(true)} className="ml-auto rounded-md p-1 text-slate-400 hover:bg-white hover:text-slate-700" aria-label={`Añadir en ${STATUS_META[status].label}`}><Plus size={15} /></button>
+    <section className="flex w-[82vw] max-w-[340px] shrink-0 snap-start flex-col overflow-hidden rounded-2xl border-2 border-dashed border-brand-300/80 bg-white/70 sm:w-[300px] lg:w-auto lg:max-w-none">
+      <header className={cx('mb-2 flex items-center gap-2 px-3 py-2.5', COLUMN_HEAD[status])}>
+        <h2 className="font-display text-xs font-extrabold uppercase tracking-wide">{STATUS_META[status].label}</h2>
+        <span className="rounded-full bg-white px-2 text-xs font-bold text-slate-700">{tasks.length}</span>
+        <button type="button" onClick={() => setAdding(true)} className="ml-auto rounded-full p-1 opacity-80 hover:bg-white/20 hover:opacity-100" aria-label={`Añadir en ${STATUS_META[status].label}`}><Plus size={15} /></button>
       </header>
-      <div ref={setNodeRef} className={cx('flex min-h-[140px] flex-1 flex-col gap-2 rounded-b-xl px-2 pb-2 transition-colors', isOver && 'bg-brand-100/60 ring-2 ring-inset ring-brand-300')}>
+      <div ref={setNodeRef} className={cx('flex min-h-[140px] flex-1 flex-col gap-2 rounded-b-xl px-2 pb-2 transition-colors', isOver && 'bg-gold-50 ring-2 ring-inset ring-gold-400')}>
         {adding && (
           <form onSubmit={(e) => { e.preventDefault(); add(); }} className="rounded-lg bg-white p-2 shadow-sm">
             <textarea autoFocus rows={2} value={title} onChange={(e) => setTitle(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); add(); } if (e.key === 'Escape') setAdding(false); }}
@@ -107,7 +113,7 @@ function CardView({ task: t, overlay }: { task: Task; overlay?: boolean }) {
   const sp = sprints.get(t.sprintId ?? '');
   return (
     <article onClick={() => !overlay && useUI.getState().openTask(t.id)}
-      className={cx('group relative cursor-grab overflow-hidden rounded-lg border border-slate-200 bg-white p-3 pl-3.5 shadow-sm transition-shadow hover:shadow-md active:cursor-grabbing', overlay && 'rotate-[1.5deg] shadow-xl ring-2 ring-brand-300')}>
+      className={cx('group relative cursor-grab overflow-hidden rounded-xl border border-brand-100 bg-white p-3 pl-3.5 shadow-sm transition-shadow hover:shadow-md active:cursor-grabbing', overlay && 'rotate-[1.5deg] shadow-xl ring-2 ring-brand-300')}>
       <span className={cx('absolute inset-y-0 left-0 w-1', PRIORITY_META[t.priority].bar)} aria-hidden />
       <div className="mb-1.5 flex flex-wrap items-center gap-1.5">
         <PriorityBadge priority={t.priority} />
@@ -117,7 +123,7 @@ function CardView({ task: t, overlay }: { task: Task; overlay?: boolean }) {
       <p className={cx('text-sm font-medium leading-snug', t.status === 'done' ? 'text-slate-400 line-through' : 'text-slate-800')}>{t.title}</p>
       {cp !== null && (
         <div className="mt-2.5 flex items-center gap-2">
-          <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-slate-100"><div className={cx('h-full rounded-full transition-all', cp === 100 ? 'bg-emerald-500' : 'bg-brand-600')} style={{ width: `${cp}%` }} /></div>
+          <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-slate-100"><div className={cx('h-full rounded-full transition-all', cp === 100 ? 'bg-brand-800' : 'bg-brand-600')} style={{ width: `${cp}%` }} /></div>
           <span className="inline-flex items-center gap-1 text-[11px] text-slate-500"><CheckSquare size={11} />{cp}%</span>
         </div>
       )}

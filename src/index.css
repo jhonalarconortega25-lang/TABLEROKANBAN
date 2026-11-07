@@ -4,9 +4,23 @@
 
 @layer base {
   html { -webkit-tap-highlight-color: transparent; }
-  body { @apply bg-slate-50 text-slate-800; font-feature-settings: 'cv11', 'ss01'; }
+  body {
+    @apply text-slate-800;
+    background-color: #f2f1ec;
+    background-image: radial-gradient(rgba(60, 60, 50, 0.05) 1px, transparent 1px), radial-gradient(rgba(60, 60, 50, 0.035) 1px, transparent 1px);
+    background-size: 22px 22px, 13px 13px;
+    background-position: 0 0, 7px 9px;
+  }
+  h1, h2, h3, .font-display { font-family: Montserrat, Mulish, system-ui, sans-serif; text-wrap: balance; }
   input[type='date'], input[type='time'] { @apply cursor-pointer; }
   ::-webkit-scrollbar { width: 8px; height: 8px; }
-  ::-webkit-scrollbar-thumb { @apply rounded-full bg-slate-300; }
+  ::-webkit-scrollbar-thumb { @apply rounded-full bg-brand-200; }
   ::-webkit-scrollbar-track { background: transparent; }
 }
+
+@layer components {
+  /* Flecha tipo póster (Analysis → Hypothesis → Result) */
+  .chevron { clip-path: polygon(0 0, calc(100% - 14px) 0, 100% 50%, calc(100% - 14px) 100%, 0 100%, 14px 50%); }
+  .chevron-first { clip-path: polygon(0 0, calc(100% - 14px) 0, 100% 50%, calc(100% - 14px) 100%, 0 100%); }
+}
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; } }

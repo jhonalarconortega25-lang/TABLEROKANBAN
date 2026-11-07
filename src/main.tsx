@@ -13,7 +13,7 @@ class ErrorBoundary extends Component<{ children: ReactNode }, { error: Error | 
         <p className="font-semibold text-slate-900">Algo salió mal</p>
         <p className="mt-1 text-sm text-slate-500">{this.state.error.message}</p>
         <p className="mt-1 text-xs text-slate-400">Tus datos siguen guardados en este navegador.</p>
-        <button className="mt-4 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white" onClick={() => location.reload()}>Recargar</button>
+        <button className="mt-4 rounded-lg bg-green-800 px-4 py-2 text-sm font-medium text-white" onClick={() => location.reload()}>Recargar</button>
       </div>
     );
   }
