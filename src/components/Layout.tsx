@@ -71,8 +71,8 @@ function Sidebar({ open }: { open: boolean }) {
         </div>
         <ProgressBar value={progress} />
         <p className="mt-2.5 flex items-center gap-1.5 text-[11px] text-slate-500" title={sync.detail}>
-          {sync.mode === 'supabase' ? <Cloud size={12} className={sync.ok ? 'text-emerald-600' : 'text-amber-600'} /> : <CloudOff size={12} />}
-          {sync.mode === 'supabase' ? (sync.ok ? 'Sincronizado en la nube' : 'Sin conexión a Supabase') : 'Guardado local automático'}
+          {sync.mode === 'local' ? <CloudOff size={12} /> : <Cloud size={12} className={sync.ok ? 'text-emerald-600' : 'text-amber-600'} />}
+          {sync.mode === 'local' ? 'Guardado local automático' : sync.readOnly ? 'Solo lectura' : sync.ok ? 'Guardado para todo el equipo' : 'Reconectando…'}
         </p>
       </div>
     </aside>

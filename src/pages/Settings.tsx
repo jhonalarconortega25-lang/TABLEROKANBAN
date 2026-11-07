@@ -6,6 +6,7 @@ import { useSyncStatus, isSupabaseConfigured } from '../lib/persistence/supabase
 import { hasErrors, validateProject, type Errors } from '../lib/validation';
 import { fmtDateTime, todayISO } from '../lib/dates';
 import type { EntityKind, Project } from '../types';
+import { IS_ARTIFACT, claudeUse } from '../lib/backend';
 import { Button, Card, CardHeader, Field, Input, PageHeader, Select, Textarea, cx } from '../components/ui';
 
 const ENTITY_LABEL: Record<EntityKind, string> = { task: 'Actividad', sprint: 'Sprint', meeting: 'Reunión', member: 'Equipo', milestone: 'Hito', project: 'Proyecto' };
@@ -30,11 +31,19 @@ export default function Settings() {
     toast('Proyecto actualizado');
   };
 
-  const exportJson = () => {
-    const blob = new Blob([JSON.stringify(selectData(usePlanner.getState()), null, 2)], { type: 'application/json' });
+  const exportJson = async () => {
+    const filename = `project-planner-${todayISO()}.json`;
+    const json = JSON.stringify(selectData(usePlanner.getState()), null, 2);
+    if (IS_ARTIFACT) {
+      const dl = await claudeUse<{ save: (r: { filename: string; data: string }) => Promise<unknown> }>('downloads');
+      if (!dl) return toast('Las descargas no están disponibles en esta vista', 'error');
+      try { await dl.save({ filename, data: json }); toast('Copia de seguridad descargada'); } catch { /* el usuario canceló */ }
+      return;
+    }
+    const blob = new Blob([json], { type: 'application/json' });
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
-    a.download = `project-planner-${todayISO()}.json`;
+    a.download = filename;
     a.click();
     URL.revokeObjectURL(a.href);
     toast('Copia de seguridad descargada');
@@ -97,11 +106,11 @@ export default function Settings() {
             <CardHeader title="Almacenamiento y sincronización" />
             <div className="px-5 pb-5 text-sm">
               <p className="flex items-center gap-2 font-medium text-slate-800">
-                {sync.mode === 'supabase' ? <Cloud size={16} className={sync.ok ? 'text-emerald-600' : 'text-amber-600'} /> : <CloudOff size={16} className="text-slate-400" />}
-                {sync.mode === 'supabase' ? 'Supabase (multiusuario, tiempo real)' : 'Local (este navegador)'}
+                {sync.mode !== 'local' ? <Cloud size={16} className={sync.ok ? 'text-emerald-600' : 'text-amber-600'} /> : <CloudOff size={16} className="text-slate-400" />}
+                {sync.mode === 'shared' ? 'Base de datos compartida del equipo (tiempo real)' : sync.mode === 'supabase' ? 'Supabase (multiusuario, tiempo real)' : 'Local (este navegador)'}
               </p>
               <p className="mt-1 text-xs text-slate-500">{sync.detail}</p>
-              {!isSupabaseConfigured && (
+              {!isSupabaseConfigured && !IS_ARTIFACT && (
                 <p className="mt-2 rounded-lg bg-slate-50 p-2.5 text-xs text-slate-600">
                   Cada cambio se guarda automáticamente y se mantiene al cerrar el navegador. Para compartir los datos entre todo el equipo en tiempo real, ejecuta <code className="rounded bg-white px-1">supabase/schema.sql</code> en tu proyecto Supabase y define <code className="rounded bg-white px-1">VITE_SUPABASE_URL</code> y <code className="rounded bg-white px-1">VITE_SUPABASE_ANON_KEY</code> (ver README).
                 </p>
@@ -121,6 +130,9 @@ export default function Settings() {
           </label>
           <Button onClick={async () => { if (await confirm({ title: 'Cargar datos de ejemplo', message: 'Se reemplazarán TODOS los datos actuales por el proyecto de ejemplo. Exporta una copia antes si la necesitas.', confirmLabel: 'Cargar ejemplo', danger: true })) { st.loadDemo(); toast('Datos de ejemplo cargados'); } }}>
             <RotateCcw size={15} /> Restaurar datos de ejemplo
+          </Button>
+          <Button onClick={async () => { if (await confirm({ title: 'Vaciar el proyecto (conservar equipo)', message: 'Se eliminarán todas las actividades, sprints, reuniones e hitos para todo el equipo. Se conservan los integrantes y los datos del proyecto.', confirmLabel: 'Vaciar', danger: true })) { st.clearWork(); toast('Proyecto vacío, equipo conservado'); } }}>
+            <Eraser size={15} /> Vaciar ejemplo (conservar equipo)
           </Button>
           <Button variant="danger" onClick={async () => { if (await confirm({ title: 'Empezar desde cero', message: 'Se eliminarán todas las actividades, sprints, reuniones, integrantes e hitos. Esta acción no se puede deshacer.', confirmLabel: 'Borrar todo', danger: true })) { st.clearAll(); toast('Proyecto vacío listo para usar'); } }}>
             <Eraser size={15} /> Borrar todo y empezar de cero

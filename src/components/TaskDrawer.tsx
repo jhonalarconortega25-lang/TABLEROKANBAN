@@ -7,6 +7,7 @@ import { PRIORITIES, PRIORITY_META, STATUSES, STATUS_META } from '../lib/constan
 import { checklistProgress, isOverdue } from '../lib/metrics';
 import { fmtDate, fmtDateTime, relativeDays } from '../lib/dates';
 import type { Task } from '../types';
+import { IS_ARTIFACT } from '../lib/backend';
 import { Avatar, Button, IconButton, Input, PriorityBadge, ProgressBar, Select, StatusBadge, Textarea, cx } from './ui';
 
 const MAX_FILE = 750 * 1024; // límite para guardar archivos dentro del navegador
@@ -260,12 +261,14 @@ function TaskDetail({ task, onClose }: { task: Task; onClose: () => void }) {
             ))}
           </ul>
           <div className="mt-2 flex flex-col gap-2 sm:flex-row">
-            <label className="inline-flex h-9 cursor-pointer items-center justify-center gap-1.5 rounded-lg bg-white px-3 text-sm font-medium text-slate-700 shadow-sm ring-1 ring-inset ring-slate-200 hover:bg-slate-50">
-              <Paperclip size={15} /> Subir archivo
-              <input type="file" className="sr-only" onChange={(e) => { onFile(e.target.files); e.target.value = ''; }} />
-            </label>
+            {!IS_ARTIFACT && (
+              <label className="inline-flex h-9 cursor-pointer items-center justify-center gap-1.5 rounded-lg bg-white px-3 text-sm font-medium text-slate-700 shadow-sm ring-1 ring-inset ring-slate-200 hover:bg-slate-50">
+                <Paperclip size={15} /> Subir archivo
+                <input type="file" className="sr-only" onChange={(e) => { onFile(e.target.files); e.target.value = ''; }} />
+              </label>
+            )}
             <form className="flex flex-1 gap-2" onSubmit={(e) => { e.preventDefault(); addLink(); }}>
-              <Input value={link} onChange={(e) => setLink(e.target.value)} placeholder="o pega un enlace (Drive, Docs…)" />
+              <Input value={link} onChange={(e) => setLink(e.target.value)} placeholder={IS_ARTIFACT ? "Pega un enlace (Drive, OneDrive, Docs…)" : "o pega un enlace (Drive, Docs…)"} />
               <Button type="submit" disabled={!link.trim()}>Añadir</Button>
             </form>
           </div>

@@ -11,8 +11,8 @@ type Collection = 'members' | 'sprints' | 'tasks' | 'meetings' | 'milestones' | 
 const COLLECTIONS: Collection[] = ['members', 'sprints', 'tasks', 'meetings', 'milestones', 'history'];
 const PROJECT_ROW_ID = 'main';
 
-interface SyncState { mode: 'local' | 'supabase'; ok: boolean; detail: string }
-export const useSyncStatus = create<SyncState>(() => ({ mode: 'local', ok: true, detail: 'Los datos se guardan en este navegador.' }));
+interface SyncState { mode: 'local' | 'supabase' | 'shared'; ok: boolean; loaded: boolean; readOnly: boolean; detail: string }
+export const useSyncStatus = create<SyncState>(() => ({ mode: 'local', ok: true, loaded: true, readOnly: false, detail: 'Los datos se guardan en este navegador.' }));
 export const syncStatus = () => useSyncStatus.getState();
 
 const url = import.meta.env.VITE_SUPABASE_URL as string | undefined;
@@ -34,7 +34,7 @@ let applyingRemote = false;
 let lastSynced: PlannerData | null = null;
 let timer: ReturnType<typeof setTimeout> | null = null;
 
-const setStatus = (ok: boolean, detail: string) => useSyncStatus.setState({ mode: 'supabase', ok, detail });
+const setStatus = (ok: boolean, detail: string) => useSyncStatus.setState({ mode: 'supabase', ok, detail, loaded: true });
 
 async function fetchAll(sb: SupabaseClient): Promise<PlannerData | null> {
   const { data: project, error } = await sb.from('project').select('*').eq('id', PROJECT_ROW_ID).maybeSingle();

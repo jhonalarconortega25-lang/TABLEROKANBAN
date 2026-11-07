@@ -13,6 +13,14 @@ npm run build      # compila a dist/ (sitio estático, desplegable en GitHub Pag
 
 La primera vez se cargan **datos de ejemplo** (proyecto Capstone G09). Desde *Configuración* puedes borrarlos y empezar de cero, exportar/importar copias en JSON o restaurarlos.
 
+## Versión compartida del equipo (claude.ai)
+
+La versión que usa el grupo (Jhon, Youssep, Mauricio, Gabriela y Ashley) está publicada como artefacto de claude.ai con **base de datos compartida en tiempo real**: https://claude.ai/artifact/4ZZmcZgq6dLGuRYBvvHLBM
+
+- Se compila con `npm run build:artifact` (`VITE_BACKEND=artifact`): sin localStorage; cada actividad, sprint, reunión, integrante e hito es un documento de la base del artefacto (`src/lib/persistence/artifactDbSync.ts`).
+- Para poder **editar**, cada integrante debe estar invitado por correo como **Editor** desde el menú *Compartir* del artefacto (sin enlace público) y haber iniciado sesión en claude.ai.
+- Los adjuntos se guardan como enlaces (Drive, OneDrive…), no como archivos.
+
 ## Publicar y compartir con el equipo (GitHub Pages)
 
 1. En GitHub: **Settings → Pages → Build and deployment → Source: “GitHub Actions”** (solo una vez).
