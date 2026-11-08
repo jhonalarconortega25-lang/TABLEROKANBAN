@@ -22,7 +22,7 @@ create table if not exists members (
 
 create table if not exists sprints (
   id text primary key,
-  number int not null unique,
+  number int not null,
   name text not null,
   goal text not null default '',
   start_date date not null,
@@ -101,8 +101,11 @@ begin
   end loop;
 end $$;
 
--- Seguridad (RLS). Política abierta para un equipo pequeño con la clave anónima.
--- Para producción, reemplazar por políticas basadas en auth.uid() y una tabla de pertenencia al proyecto.
+-- Permisos para la app (clave anon, sin inicio de sesión)
+grant usage on schema public to anon, authenticated;
+grant select, insert, update, delete on project, members, sprints, meetings, tasks, milestones, history to anon, authenticated;
+
+-- Seguridad (RLS): cualquiera con el enlace de la app puede ver y editar (sin cuentas).
 do $$
 declare t text;
 begin
