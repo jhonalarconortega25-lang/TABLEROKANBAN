@@ -6,6 +6,7 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 import { create } from 'zustand';
 import { usePlanner, selectData, sanitize } from '../../store/usePlanner';
 import type { PlannerData } from '../../types';
+import { IS_ARTIFACT } from '../backend';
 
 type Collection = 'members' | 'sprints' | 'tasks' | 'meetings' | 'milestones' | 'history';
 const COLLECTIONS: Collection[] = ['members', 'sprints', 'tasks', 'meetings', 'milestones', 'history'];
@@ -15,7 +16,7 @@ interface SyncState { mode: 'local' | 'supabase' | 'shared'; ok: boolean; loaded
 
 const url = import.meta.env.VITE_SUPABASE_URL as string | undefined;
 const key = import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined;
-export const isSupabaseConfigured = Boolean(url && key);
+export const isSupabaseConfigured = Boolean(url && key) && !IS_ARTIFACT;
 
 export const useSyncStatus = create<SyncState>(() =>
   isSupabaseConfigured

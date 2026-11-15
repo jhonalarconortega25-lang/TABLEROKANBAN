@@ -25,8 +25,8 @@ Enlace del equipo (cuando esté publicado): **https://jhonalarconortega25-lang.g
 
 1. **Publicar:** hacer merge del pull request y en GitHub ir a **Settings → Pages → Source: GitHub Actions**.
 2. **Crear la base:** en [supabase.com](https://supabase.com) crear un proyecto gratis → **SQL Editor** → pegar y ejecutar todo `supabase/schema.sql`.
-3. **Conectar:** en Supabase, **Project Settings → API**, copiar **Project URL** y la clave **anon public**. En GitHub, **Settings → Secrets and variables → Actions → Variables**, crear `VITE_SUPABASE_URL` y `VITE_SUPABASE_ANON_KEY` con esos valores.
-4. **Publicar de nuevo:** **Actions → Publicar en GitHub Pages → Run workflow**.
+3. **Conectar:** ya hecho. La URL y la clave *anon* del proyecto están en `.env.production` (para cambiar de base, edita ese archivo).
+4. **Publicar de nuevo:** **Actions → Publicar en GitHub Pages → Run workflow** (o cualquier push a `main`).
 5. Abrir el enlace primero desde un solo dispositivo: ese primer acceso carga el equipo y el plan de ejemplo en la base. Después compartir el enlace.
 
 > La clave *anon* es pública por diseño (va dentro de la app). La política de acceso incluida deja leer y editar a cualquiera que tenga el enlace, que es lo pedido: abrir sin cuenta. No compartas la clave *service_role*.
