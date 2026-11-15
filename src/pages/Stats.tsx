@@ -7,6 +7,8 @@ import { Card, CardHeader, EmptyState, PageHeader, ProgressBar, Segmented, Selec
 import { AXIS, ChartTooltip, Donut, GRID, Legend } from '../components/charts';
 import { TaskLine } from '../components/TaskLine';
 import { overdueTasks } from '../lib/metrics';
+import { TUCKMAN_STAGES, tuckmanStage } from '../lib/tuckman';
+import { Lightbulb, AlertTriangle } from 'lucide-react';
 
 export default function Stats() {
   const data = useData();
@@ -24,6 +26,7 @@ export default function Stats() {
   const burnSprint = sprints.find((s) => s.sprint.id === burnId) ?? defaultSprint;
   const burndown = useMemo(() => (burnSprint ? sprintBurndown(burnSprint.sprint, burnSprint.tasks, today) : []), [burnSprint, today]);
   const overdue = useMemo(() => overdueTasks(tasks, today), [tasks, today]);
+  const tuck = useMemo(() => tuckmanStage(data, today), [data, today]);
 
   if (tasks.length === 0) return <div><PageHeader title="Estadísticas" /><Card><EmptyState title="Sin datos aún" text="Los indicadores se calcularán automáticamente cuando registres actividades." /></Card></div>;
 
@@ -88,6 +91,25 @@ export default function Stats() {
         </div>
       </Card>
 
+      <Card>
+        <CardHeader title="Avance por responsable" subtitle="% de sus actividades completadas, con la lectura del equipo según el modelo de Tuckman" />
+        <div className="grid grid-cols-1 gap-6 px-5 pb-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.35fr)]">
+          <div className="space-y-3">
+            {people.map((p) => (
+              <div key={p.member.id}>
+                <div className="mb-1 flex items-center justify-between text-xs">
+                  <span className="flex items-center gap-1.5 text-slate-700"><span className="h-2.5 w-2.5 rounded-sm" style={{ background: colorFor(p.member.colorIndex) }} />{p.member.name}</span>
+                  <span className="text-slate-500">{p.completed}/{p.assigned}{p.overdue > 0 && <span className="text-red-600"> · {p.overdue} atrasada{p.overdue > 1 ? 's' : ''}</span>} · <span className="font-semibold text-slate-900">{p.progress}%</span></span>
+                </div>
+                <ProgressBar value={p.progress} />
+              </div>
+            ))}
+            {people.length === 0 && <p className="text-xs text-slate-400">Sin integrantes.</p>}
+          </div>
+          <TuckmanPanel result={tuck} />
+        </div>
+      </Card>
+
       <div className="grid gap-5 lg:grid-cols-2">
         <Card>
           <CardHeader title="Avance por sprint" />
@@ -105,24 +127,7 @@ export default function Stats() {
             )}
           </div>
         </Card>
-        <Card>
-          <CardHeader title="Avance por responsable" subtitle="% de sus actividades completadas" />
-          <div className="space-y-3 px-5 pb-5">
-            {people.map((p) => (
-              <div key={p.member.id}>
-                <div className="mb-1 flex items-center justify-between text-xs">
-                  <span className="flex items-center gap-1.5 text-slate-700"><span className="h-2.5 w-2.5 rounded-sm" style={{ background: colorFor(p.member.colorIndex) }} />{p.member.name}</span>
-                  <span className="text-slate-500">{p.completed}/{p.assigned} · <span className="font-semibold text-slate-900">{p.progress}%</span></span>
-                </div>
-                <ProgressBar value={p.progress} />
-              </div>
-            ))}
-            {people.length === 0 && <p className="text-xs text-slate-400">Sin integrantes.</p>}
-          </div>
-        </Card>
-      </div>
-
-      {burnSprint && (
+        {burnSprint && (
         <Card>
           <CardHeader title="Burndown del sprint" subtitle="Actividades restantes frente a la línea ideal"
             action={<Select className="!h-8 !w-auto text-xs" value={burnSprint.sprint.id} onChange={(e) => setBurnId(e.target.value)}>{sprints.map((s) => <option key={s.sprint.id} value={s.sprint.id}>Sprint {s.sprint.number}</option>)}</Select>} />
@@ -140,7 +145,9 @@ export default function Stats() {
             </ResponsiveContainer>
           </div>
         </Card>
-      )}
+        )}
+
+      </div>
 
       <Card>
         <CardHeader title={`Actividades atrasadas (${overdue.length})`} />
@@ -148,6 +155,48 @@ export default function Stats() {
           {overdue.length === 0 ? <p className="px-2 pb-2 text-xs text-slate-400">No hay actividades atrasadas. ¡Buen trabajo!</p> : overdue.map((t) => <TaskLine key={t.id} task={t} />)}
         </div>
       </Card>
+    </div>
+  );
+}
+
+function TuckmanPanel({ result }: { result: ReturnType<typeof tuckmanStage> }) {
+  const idx = TUCKMAN_STAGES.findIndex((x) => x.key === result.stage);
+  const st = TUCKMAN_STAGES[idx];
+  return (
+    <div className="min-w-0 rounded-2xl border-2 border-brand-600 bg-brand-50/40 p-4">
+      <p className="font-display text-[11px] font-extrabold uppercase tracking-wide text-brand-700">Interpretación · Modelo de Tuckman</p>
+      <div className="-mx-1 mt-3 overflow-x-auto px-1 pb-1">
+        <ol className="flex min-w-max gap-0.5 sm:min-w-0" aria-label="Etapas del modelo de Tuckman">
+          {TUCKMAN_STAGES.map((x, i) => (
+            <li key={x.key} aria-current={i === idx ? 'step' : undefined}
+              className={cx('min-w-0 py-1.5 pl-4 pr-4 text-center sm:flex-1', i === 0 ? 'chevron-first pl-2' : 'chevron',
+                i === idx ? 'bg-gold-500 text-brand-900' : i < idx ? 'bg-brand-700 text-white' : 'bg-brand-100 text-brand-800')}>
+              <span className="block whitespace-nowrap font-display text-[9.5px] font-extrabold uppercase">{x.name}</span>
+              <span className="block whitespace-nowrap text-[9.5px] opacity-80">{x.en}</span>
+            </li>
+          ))}
+        </ol>
+      </div>
+      <p className="mt-3 text-sm text-slate-800">
+        El equipo está en la etapa de <b className="font-display font-extrabold uppercase text-brand-700">{st.name}</b> <span className="text-slate-500">({st.en})</span>.
+      </p>
+      <p className="mt-1 text-sm text-slate-600">{st.summary}</p>
+      <p className="mt-3 font-display text-[11px] font-extrabold uppercase tracking-wide text-brand-700">Por qué</p>
+      <ul className="mt-1 space-y-1 text-xs text-slate-700">
+        {result.reasons.map((r) => <li key={r} className="flex gap-1.5"><span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-brand-600" />{r}</li>)}
+      </ul>
+      {result.behind.length > 0 && (
+        <p className="mt-2 flex items-start gap-1.5 text-xs text-red-700">
+          <AlertTriangle size={13} className="mt-0.5 shrink-0" />
+          Atención: {result.behind.map((b) => `${b.name} (${b.overdue} atrasada${b.overdue > 1 ? 's' : ''})`).join(', ')}.
+        </p>
+      )}
+      <p className="mt-3 flex items-start gap-1.5 rounded-lg bg-gold-50 px-3 py-2 text-xs text-gold-800 ring-1 ring-gold-200">
+        <Lightbulb size={14} className="mt-0.5 shrink-0" /><span><b>Recomendación:</b> {st.tip}</span>
+      </p>
+      <p className="mt-2 text-[10px] leading-snug text-slate-400">
+        Lectura orientativa que se recalcula sola con los datos del planner: avance frente al tiempo, cumplimiento de plazos, reparto del trabajo y atrasos.
+      </p>
     </div>
   );
 }
