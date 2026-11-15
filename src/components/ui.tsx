@@ -7,8 +7,8 @@ export const cx = (...c: (string | false | null | undefined)[]) => c.filter(Bool
 
 type Variant = 'primary' | 'secondary' | 'ghost' | 'danger';
 const VARIANTS: Record<Variant, string> = {
-  primary: 'bg-brand-600 text-white hover:bg-brand-700 shadow-sm',
-  secondary: 'bg-white text-slate-700 ring-1 ring-inset ring-slate-200 hover:bg-slate-50 shadow-sm',
+  primary: 'bg-brand-600 text-white hover:bg-brand-700 shadow-sm font-semibold',
+  secondary: 'bg-white text-brand-700 ring-1 ring-inset ring-brand-300 hover:bg-brand-50',
   ghost: 'text-slate-600 hover:bg-slate-100',
   danger: 'bg-red-600 text-white hover:bg-red-700 shadow-sm',
 };
@@ -19,7 +19,7 @@ export function Button({ variant = 'secondary', size = 'md', className, ...p }: 
       type="button"
       {...p}
       className={cx(
-        'inline-flex items-center justify-center gap-1.5 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:pointer-events-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500',
+        'inline-flex items-center justify-center gap-1.5 rounded-full font-medium transition-colors disabled:opacity-50 disabled:pointer-events-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500',
         size === 'sm' ? 'h-8 px-2.5 text-xs' : 'h-9 px-3.5 text-sm',
         VARIANTS[variant],
         className,
@@ -42,7 +42,7 @@ export function IconButton({ label, className, ...p }: ButtonHTMLAttributes<HTML
 
 export function Card({ className, children, ...p }: { className?: string; children: ReactNode } & HTMLAttributes<HTMLDivElement>) {
   return (
-    <div {...p} className={cx('min-w-0 rounded-xl border border-slate-200 bg-white shadow-[0_1px_2px_rgba(15,23,42,.04)]', className)}>
+    <div {...p} className={cx('min-w-0 rounded-2xl border-2 border-dashed border-brand-300/80 bg-white', className)}>
       {children}
     </div>
   );
@@ -52,7 +52,7 @@ export function CardHeader({ title, subtitle, action }: { title: ReactNode; subt
   return (
     <div className="flex items-start justify-between gap-3 px-5 pt-4 pb-3">
       <div className="min-w-0">
-        <h3 className="text-sm font-semibold text-slate-900">{title}</h3>
+        <h3 className="font-display text-[13px] font-extrabold uppercase tracking-wide text-brand-700">{title}</h3>
         {subtitle && <p className="mt-0.5 text-xs text-slate-500">{subtitle}</p>}
       </div>
       {action}
@@ -112,8 +112,8 @@ export function AvatarStack({ members, size = 22, max = 4 }: { members: Member[]
 export function ProgressBar({ value, className, tone = 'brand', height = 6 }: { value: number; className?: string; tone?: 'brand' | 'green'; height?: number }) {
   const v = Math.max(0, Math.min(100, value));
   return (
-    <div className={cx('w-full overflow-hidden rounded-full bg-slate-100', className)} style={{ height }} role="progressbar" aria-valuenow={v} aria-valuemin={0} aria-valuemax={100}>
-      <div className={cx('h-full rounded-full transition-[width] duration-500 ease-out', v === 100 || tone === 'green' ? 'bg-emerald-500' : 'bg-brand-600')} style={{ width: `${v}%` }} />
+    <div className={cx('w-full overflow-hidden rounded-full bg-brand-50 ring-1 ring-inset ring-brand-100', className)} style={{ height }} role="progressbar" aria-valuenow={v} aria-valuemin={0} aria-valuemax={100}>
+      <div className={cx('h-full rounded-full transition-[width] duration-500 ease-out', v === 100 || tone === 'green' ? 'bg-brand-800' : 'bg-brand-600')} style={{ width: `${v}%` }} />
     </div>
   );
 }
@@ -166,9 +166,9 @@ export function Modal({ open, onClose, title, children, footer, size = 'md' }: {
           size === 'sm' ? 'sm:max-w-md' : size === 'lg' ? 'sm:max-w-3xl' : 'sm:max-w-xl',
         )}
       >
-        <div className="flex items-center justify-between border-b border-slate-100 px-5 py-3.5">
-          <h2 className="text-base font-semibold text-slate-900">{title}</h2>
-          <IconButton label="Cerrar" onClick={onClose}><X size={18} /></IconButton>
+        <div className="flex items-center justify-between rounded-t-2xl bg-brand-600 px-5 py-3.5">
+          <h2 className="font-display text-sm font-extrabold uppercase tracking-wide text-white">{title}</h2>
+          <IconButton label="Cerrar" onClick={onClose} className="!text-white/80 hover:!bg-white/15 hover:!text-white"><X size={18} /></IconButton>
         </div>
         <div className="overflow-y-auto px-5 py-4">{children}</div>
         {footer && <div className="flex justify-end gap-2 border-t border-slate-100 px-5 py-3">{footer}</div>}
@@ -192,8 +192,9 @@ export function PageHeader({ title, subtitle, actions }: { title: string; subtit
   return (
     <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
       <div>
-        <h1 className="text-xl font-semibold tracking-tight text-slate-900 sm:text-2xl">{title}</h1>
-        {subtitle && <p className="mt-1 text-sm text-slate-500">{subtitle}</p>}
+        <h1 className="font-display text-2xl font-extrabold uppercase tracking-tight text-brand-700 sm:text-[28px]">{title}</h1>
+        <span className="mt-1.5 block h-1 w-14 rounded-full bg-gold-500" aria-hidden />
+        {subtitle && <p className="mt-2 text-sm text-slate-600">{subtitle}</p>}
       </div>
       {actions && <div className="flex flex-wrap items-center gap-2">{actions}</div>}
     </div>
@@ -202,13 +203,13 @@ export function PageHeader({ title, subtitle, actions }: { title: string; subtit
 
 export function Segmented<T extends string>({ value, onChange, options }: { value: T; onChange: (v: T) => void; options: { value: T; label: ReactNode }[] }) {
   return (
-    <div className="inline-flex rounded-lg bg-slate-100 p-0.5">
+    <div className="inline-flex rounded-full bg-brand-50 p-0.5 ring-1 ring-brand-200">
       {options.map((o) => (
         <button
           key={o.value}
           type="button"
           onClick={() => onChange(o.value)}
-          className={cx('rounded-md px-3 py-1 text-xs font-medium transition-colors', value === o.value ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-800')}
+          className={cx('rounded-full px-3 py-1 text-xs font-semibold transition-colors', value === o.value ? 'bg-brand-600 text-white shadow-sm' : 'text-brand-700 hover:bg-brand-100')}
         >
           {o.label}
         </button>

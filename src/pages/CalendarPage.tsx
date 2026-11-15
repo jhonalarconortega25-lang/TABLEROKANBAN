@@ -51,8 +51,8 @@ export default function CalendarPage() {
         out.push({
           id: `due-${t.id}`, kind: 'due', date: t.dueDate, title: t.title, onOpen: openTask(t.id), draggable: { type: 'task', id: t.id },
           sub: `Entrega · ${members.get(t.assigneeId ?? '')?.name ?? 'Sin asignar'}`,
-          className: t.status === 'done' ? 'bg-emerald-50 text-emerald-800 line-through decoration-emerald-400' : od ? 'bg-red-50 text-red-700' : 'bg-white text-slate-700 ring-1 ring-inset ring-slate-200',
-          icon: <span className={cx('h-1.5 w-1.5 shrink-0 rounded-full', t.status === 'done' ? 'bg-emerald-500' : od ? 'bg-red-600' : PRIORITY_META[t.priority].bar)} />,
+          className: t.status === 'done' ? 'bg-brand-50 text-brand-800 line-through decoration-brand-400' : od ? 'bg-red-50 text-red-700' : 'bg-white text-slate-700 ring-1 ring-inset ring-slate-200',
+          icon: <span className={cx('h-1.5 w-1.5 shrink-0 rounded-full', t.status === 'done' ? 'bg-brand-600' : od ? 'bg-red-600' : PRIORITY_META[t.priority].bar)} />,
         });
       }
       if (t.startDate && t.startDate !== t.dueDate)
@@ -60,13 +60,13 @@ export default function CalendarPage() {
     }
     for (const s of sprints) {
       const open = () => nav(`/sprints#${s.id}`);
-      out.push({ id: `ss-${s.id}`, kind: 'sprint', date: s.startDate, title: `Inicio Sprint ${s.number}`, sub: s.name, onOpen: open, className: 'bg-sky-50 text-sky-800', icon: <Rocket size={11} className="shrink-0" /> });
-      out.push({ id: `se-${s.id}`, kind: 'sprint', date: s.endDate, title: `Fin Sprint ${s.number}`, sub: s.name, onOpen: open, className: 'bg-sky-50 text-sky-800', icon: <Rocket size={11} className="shrink-0 rotate-90" /> });
+      out.push({ id: `ss-${s.id}`, kind: 'sprint', date: s.startDate, title: `Inicio Sprint ${s.number}`, sub: s.name, onOpen: open, className: 'bg-gold-50 text-gold-800', icon: <Rocket size={11} className="shrink-0" /> });
+      out.push({ id: `se-${s.id}`, kind: 'sprint', date: s.endDate, title: `Fin Sprint ${s.number}`, sub: s.name, onOpen: open, className: 'bg-gold-50 text-gold-800', icon: <Rocket size={11} className="shrink-0 rotate-90" /> });
     }
     for (const m of meetings)
       out.push({ id: `m-${m.id}`, kind: 'meeting', date: m.date, time: m.time, title: m.title, sub: m.objective, participants: m.participantIds, onOpen: () => useUI.getState().openMeeting(m.id), draggable: { type: 'meeting', id: m.id }, className: 'bg-brand-600 text-white', icon: <CalendarClock size={11} className="shrink-0" /> });
     for (const ms of milestones)
-      out.push({ id: `ms-${ms.id}`, kind: 'milestone', date: ms.date, title: ms.title, sub: ms.description, onOpen: () => setMilestone(ms), draggable: { type: 'milestone', id: ms.id }, className: 'bg-violet-100 text-violet-800 font-medium', icon: <Flag size={11} className="shrink-0" /> });
+      out.push({ id: `ms-${ms.id}`, kind: 'milestone', date: ms.date, title: ms.title, sub: ms.description, onOpen: () => setMilestone(ms), draggable: { type: 'milestone', id: ms.id }, className: 'bg-bark-100 text-bark-700 font-medium', icon: <Flag size={11} className="shrink-0" /> });
     const order: Record<Kind, number> = { milestone: 0, sprint: 1, meeting: 2, due: 3, start: 4 };
     return out.filter((e) => kinds.has(e.kind)).sort((a, b) => order[a.kind] - order[b.kind] || (a.time ?? '').localeCompare(b.time ?? ''));
   }, [tasks, sprints, meetings, milestones, kinds, today, members, nav]);
@@ -123,13 +123,13 @@ export default function CalendarPage() {
             <IconButton label="Anterior" onClick={() => move(-1)}><ChevronLeft size={18} /></IconButton>
             <IconButton label="Siguiente" onClick={() => move(1)}><ChevronRight size={18} /></IconButton>
             <Button size="sm" onClick={() => setCursor(today)}>Hoy</Button>
-            <h2 className="ml-2 text-base font-semibold capitalize text-slate-900">{title}</h2>
+            <h2 className="ml-2 font-display text-base font-extrabold uppercase tracking-wide text-brand-700">{title}</h2>
           </div>
           <div className="flex flex-wrap items-center gap-2 sm:ml-auto">
             <div className="flex flex-wrap gap-1">
               {(Object.keys(KIND_LABEL) as Kind[]).map((k) => (
                 <button key={k} type="button" onClick={() => setKinds((s) => { const n = new Set(s); n.has(k) ? n.delete(k) : n.add(k); return n; })}
-                  className={cx('rounded-full px-2.5 py-0.5 text-[11px] font-medium ring-1 transition-colors', kinds.has(k) ? 'bg-slate-800 text-white ring-slate-800' : 'text-slate-500 ring-slate-200 hover:bg-slate-50')}>
+                  className={cx('rounded-full px-2.5 py-0.5 text-[11px] font-medium ring-1 transition-colors', kinds.has(k) ? 'bg-brand-700 text-white ring-brand-700' : 'text-slate-500 ring-slate-200 hover:bg-slate-50')}>
                   {KIND_LABEL[k]}
                 </button>
               ))}
@@ -188,8 +188,8 @@ function MonthGrid({ date, today, byDay, onDrop, onDay, Chip }: { date: Date; to
   for (let d = start; d <= end; d = addDays(d, 1)) days.push(d);
   return (
     <div>
-      <div className="grid grid-cols-7 border-b border-slate-100 bg-slate-50/60">
-        {['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'].map((d) => <div key={d} className="px-2 py-1.5 text-center text-[11px] font-medium text-slate-500">{d}</div>)}
+      <div className="grid grid-cols-7 bg-brand-600">
+        {['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'].map((d) => <div key={d} className="px-2 py-1.5 text-center font-display text-[11px] font-extrabold uppercase tracking-wide text-white">{d}</div>)}
       </div>
       <div className="grid grid-cols-7">
         {days.map((d) => {
@@ -204,7 +204,7 @@ function MonthGrid({ date, today, byDay, onDrop, onDay, Chip }: { date: Date; to
                 {ev.slice(0, 3).map((e) => <Chip key={e.id} e={e} />)}
                 {ev.length > 3 && <p className="px-1 text-[10px] font-medium text-slate-500">+{ev.length - 3} más</p>}
               </div>
-              {ev.length > 0 && <div className="flex flex-wrap gap-0.5 px-1 sm:hidden">{ev.slice(0, 4).map((e) => <span key={e.id} className={cx('h-1.5 w-1.5 rounded-full', e.kind === 'meeting' ? 'bg-brand-600' : e.kind === 'milestone' ? 'bg-violet-500' : e.kind === 'sprint' ? 'bg-sky-400' : 'bg-slate-400')} />)}</div>}
+              {ev.length > 0 && <div className="flex flex-wrap gap-0.5 px-1 sm:hidden">{ev.slice(0, 4).map((e) => <span key={e.id} className={cx('h-1.5 w-1.5 rounded-full', e.kind === 'meeting' ? 'bg-brand-600' : e.kind === 'milestone' ? 'bg-bark-500' : e.kind === 'sprint' ? 'bg-gold-500' : 'bg-slate-400')} />)}</div>}
             </div>
           );
         })}

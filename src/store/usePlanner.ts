@@ -10,6 +10,7 @@ import { createEmptyData, createSeedData } from '../lib/seed';
 import { nowISO, todayISO } from '../lib/dates';
 import { uid } from '../lib/id';
 import { STATUS_META } from '../lib/constants';
+import { IS_ARTIFACT } from '../lib/backend';
 
 const HISTORY_LIMIT = 500;
 export const STORAGE_KEY = 'project-planner:v1';
@@ -54,6 +55,7 @@ interface Actions {
   // Datos
   loadDemo: () => void;
   clearAll: () => void;
+  clearWork: () => void; // vacía actividades, sprints, reuniones e hitos; conserva equipo y proyecto
   importData: (data: PlannerData) => void;
   replaceAll: (data: PlannerData) => void; // usado por la sincronización remota (sin historial)
   clearHistory: () => void;
@@ -104,9 +106,9 @@ const FIELD_LABELS: Partial<Record<keyof Task, string>> = {
   dueDate: 'fecha límite', priority: 'prioridad', sprintId: 'sprint', phase: 'fase', weight: 'peso',
 };
 
-export const usePlanner = create<PlannerState>()(
-  persist(
-    (set, get) => {
+type SetFn = (partial: Partial<PlannerState> | ((s: PlannerState) => Partial<PlannerState>)) => void;
+
+const creator = (set: SetFn, get: () => PlannerState): PlannerState => {
       const patchTask = (id: ID, fn: (t: Task) => Task, entry?: (t: Task) => HistoryEntry | null) =>
         set((s) => {
           const current = s.tasks.find((t) => t.id === id);
@@ -123,7 +125,8 @@ export const usePlanner = create<PlannerState>()(
       };
 
       return {
-        ...createSeedData(),
+        // En modo compartido los datos llegan de la base del artefacto: se arranca vacío.
+        ...(IS_ARTIFACT ? createEmptyData() : createSeedData()),
 
         updateProject: (patch) => set((s) => ({ project: { ...s.project, ...patch }, history: withLog(s.history, log('project', null, 'update', 'Datos del proyecto actualizados')) })),
 
@@ -333,20 +336,25 @@ export const usePlanner = create<PlannerState>()(
 
         loadDemo: () => set(() => createSeedData()),
         clearAll: () => set(() => ({ ...createEmptyData(), history: [log('project', null, 'create', 'Proyecto reiniciado sin datos')] })),
+        clearWork: () =>
+          set((s) => ({ tasks: [], sprints: [], meetings: [], milestones: [], history: [log('project', null, 'delete', 'Se vaciaron actividades, sprints, reuniones e hitos (se conservó el equipo)')], members: s.members, project: s.project })),
         importData: (data) => set(() => ({ ...sanitize(data), history: withLog(sanitize(data).history, log('project', null, 'update', 'Datos importados desde archivo')) })),
         replaceAll: (data) => set(() => sanitize(data)),
         clearHistory: () => set(() => ({ history: [] })),
       };
-    },
-    {
+};
+
+const persistOptions = {
       name: STORAGE_KEY,
       version: 1,
       storage: createJSONStorage(() => localStorage),
-      partialize: (s): PlannerData => ({ project: s.project, members: s.members, sprints: s.sprints, tasks: s.tasks, meetings: s.meetings, milestones: s.milestones, history: s.history }),
-      merge: (persisted, current) => ({ ...current, ...sanitize(persisted as PlannerData) }),
-    },
-  ),
-);
+      partialize: (s: PlannerState): PlannerData => ({ project: s.project, members: s.members, sprints: s.sprints, tasks: s.tasks, meetings: s.meetings, milestones: s.milestones, history: s.history }),
+      merge: (persisted: unknown, current: PlannerState) => ({ ...current, ...sanitize(persisted as PlannerData) }),
+    };
+
+export const usePlanner = IS_ARTIFACT
+  ? create<PlannerState>()((set, get) => creator(set as SetFn, get))
+  : create<PlannerState>()(persist((set, get) => creator(set as SetFn, get), persistOptions as never));
 
 /** Valida/normaliza datos externos (importación, almacenamiento antiguo, remoto). */
 export function sanitize(raw: Partial<PlannerData> | undefined | null): PlannerData {

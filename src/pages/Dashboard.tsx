@@ -11,14 +11,25 @@ import { AvatarStack, Card, CardHeader, EmptyState, ProgressBar, SprintStatusBad
 import { AXIS, ChartTooltip, Donut, GRID } from '../components/charts';
 import { TaskLine } from '../components/TaskLine';
 
-function Kpi({ label, value, icon, tone, to }: { label: string; value: number; icon: ReactNode; tone: string; to: string }) {
+type Tone = 'green' | 'gold' | 'bark' | 'stone' | 'red' | 'dark';
+const TONES: Record<Tone, { head: string; border: string }> = {
+  dark: { head: 'bg-brand-700 text-white', border: 'border-brand-700' },
+  green: { head: 'bg-brand-600 text-white', border: 'border-brand-600' },
+  gold: { head: 'bg-gold-500 text-brand-900', border: 'border-gold-500' },
+  bark: { head: 'bg-bark-500 text-white', border: 'border-bark-500' },
+  stone: { head: 'bg-stone-400 text-white', border: 'border-stone-400' },
+  red: { head: 'bg-red-600 text-white', border: 'border-red-600' },
+};
+
+/** Caja tipo póster: cabecera de color con el nombre y cuerpo blanco con la cifra. */
+function Kpi({ label, value, icon, tone, to }: { label: string; value: number; icon: ReactNode; tone: Tone; to: string }) {
   return (
-    <Link to={to} className="group rounded-xl border border-slate-200 bg-white p-4 transition-shadow hover:shadow-md">
-      <div className="flex items-center justify-between">
-        <span className="text-xs font-medium text-slate-500">{label}</span>
-        <span className={cx('rounded-lg p-1.5', tone)}>{icon}</span>
-      </div>
-      <p className="mt-2 text-2xl font-semibold tracking-tight text-slate-900">{value}</p>
+    <Link to={to} className={cx('group overflow-hidden rounded-xl border-2 bg-white transition-transform hover:-translate-y-0.5', TONES[tone].border)}>
+      <span className={cx('flex items-center justify-between gap-2 px-3 py-1.5 font-display text-[11px] font-extrabold uppercase tracking-wide', TONES[tone].head)}>
+        {label}
+        {icon}
+      </span>
+      <p className="px-3 py-2.5 font-display text-3xl font-extrabold tracking-tight text-slate-900">{value}</p>
     </Link>
   );
 }
@@ -44,47 +55,74 @@ export default function Dashboard() {
 
   return (
     <div className="space-y-5">
-      {/* Encabezado del proyecto */}
-      <Card className="overflow-hidden">
-        <div className="grid gap-6 p-5 sm:p-6 lg:grid-cols-[1fr_340px]">
-          <div>
-            <p className="text-xs font-medium uppercase tracking-wider text-brand-600">Resumen del proyecto</p>
-            <h1 className="mt-1 text-2xl font-semibold tracking-tight text-slate-900 sm:text-[28px]">{project.name}</h1>
-            {project.description && <p className="mt-1.5 max-w-2xl text-sm text-slate-500">{project.description}</p>}
-            <div className="mt-4 flex flex-wrap gap-x-6 gap-y-2 text-sm">
-              <span className="text-slate-500">Inicio <span className="ml-1 font-medium text-slate-800">{fmtDate(project.startDate)}</span></span>
-              <span className="text-slate-500">Fin estimado <span className="ml-1 font-medium text-slate-800">{fmtDate(project.endDate)}</span></span>
-              <span className="text-slate-500">{daysLeft >= 0 ? <>Quedan <span className="font-medium text-slate-800">{daysLeft} días</span></> : <span className="font-medium text-red-600">Plazo vencido hace {-daysLeft} días</span>}</span>
+      {/* Encabezado del proyecto: banda verde como el título del póster */}
+      <section className="overflow-hidden rounded-2xl bg-brand-600 text-white shadow-[0_10px_30px_-12px_rgba(35,73,20,.55)]">
+        <div className="grid gap-6 p-5 sm:p-7 lg:grid-cols-[1fr_340px] lg:items-center">
+          <div className="text-center lg:text-left">
+            <p className="font-display text-[11px] font-bold uppercase tracking-[0.2em] text-gold-300">Resumen del proyecto</p>
+            <h1 className="mt-1.5 font-display text-2xl font-extrabold uppercase leading-tight tracking-tight sm:text-[34px]">{project.name}</h1>
+            {project.description && <p className="mx-auto mt-2 max-w-2xl text-sm text-brand-50/90 lg:mx-0">{project.description}</p>}
+            <div className="mt-4 flex flex-wrap justify-center gap-2 text-xs lg:justify-start">
+              <span className="rounded-full bg-white/15 px-3 py-1">Inicio <b className="ml-1">{fmtDate(project.startDate)}</b></span>
+              <span className="rounded-full bg-white/15 px-3 py-1">Fin estimado <b className="ml-1">{fmtDate(project.endDate)}</b></span>
+              <span className={cx('rounded-full px-3 py-1 font-bold', daysLeft >= 0 ? 'bg-gold-500 text-brand-900' : 'bg-red-600 text-white')}>{daysLeft >= 0 ? `Quedan ${daysLeft} días` : `Plazo vencido hace ${-daysLeft} días`}</span>
             </div>
           </div>
-          <div className="rounded-xl bg-slate-50 p-4">
+          <div className="rounded-2xl border-2 border-dashed border-brand-300 bg-white p-4 text-slate-800">
             <div className="flex items-end justify-between">
               <div>
-                <p className="text-xs font-medium text-slate-500">Avance general</p>
-                <p className="text-4xl font-semibold tracking-tight text-slate-900">{progress}<span className="text-xl text-slate-400">%</span></p>
+                <p className="font-display text-[11px] font-extrabold uppercase tracking-wide text-brand-700">Avance general</p>
+                <p className="font-display text-5xl font-extrabold tracking-tight text-brand-700">{progress}<span className="text-2xl text-gold-500">%</span></p>
               </div>
               <p className="text-right text-xs text-slate-500">{counts.done} de {counts.total}<br />actividades completadas</p>
             </div>
-            <ProgressBar value={progress} height={10} className="mt-3" />
+            <ProgressBar value={progress} height={12} className="mt-3" />
             <div className="relative mt-1 h-3">
-              <span className="absolute -translate-x-1/2 text-[10px] text-slate-400" style={{ left: `${Math.min(100, Math.max(0, expected))}%` }}>▲</span>
+              <span className="absolute -translate-x-1/2 text-[10px] text-gold-600" style={{ left: `${Math.min(100, Math.max(0, expected))}%` }}>▲</span>
             </div>
-            <p className={cx('text-xs', gap >= 0 ? 'text-emerald-700' : 'text-amber-700')}>
+            <p className={cx('text-xs font-medium', gap >= 0 ? 'text-brand-700' : 'text-bark-600')}>
               Esperado según el tiempo transcurrido: {expected}% · {gap >= 0 ? `adelantado ${gap} pts` : `retraso de ${-gap} pts`}
             </p>
           </div>
         </div>
-      </Card>
+      </section>
 
       {/* KPIs */}
       <div className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-6">
-        <Kpi label="Total actividades" value={counts.total} icon={<ListChecks size={16} />} tone="bg-slate-100 text-slate-600" to="/actividades" />
-        <Kpi label="Completadas" value={counts.done} icon={<CheckCircle2 size={16} />} tone="bg-emerald-50 text-emerald-600" to="/actividades?status=done" />
-        <Kpi label="En progreso" value={counts.in_progress} icon={<Clock3 size={16} />} tone="bg-blue-50 text-blue-600" to="/actividades?status=in_progress" />
-        <Kpi label="En revisión" value={counts.review} icon={<Eye size={16} />} tone="bg-amber-50 text-amber-600" to="/actividades?status=review" />
-        <Kpi label="Pendientes" value={counts.pending} icon={<CircleDashed size={16} />} tone="bg-slate-100 text-slate-600" to="/actividades?status=pending" />
-        <Kpi label="Atrasadas" value={counts.overdue} icon={<AlertTriangle size={16} />} tone={counts.overdue ? 'bg-red-50 text-red-600' : 'bg-slate-100 text-slate-400'} to="/actividades?due=overdue" />
+        <Kpi label="Total actividades" value={counts.total} icon={<ListChecks size={14} />} tone="dark" to="/actividades" />
+        <Kpi label="Completadas" value={counts.done} icon={<CheckCircle2 size={14} />} tone="green" to="/actividades?status=done" />
+        <Kpi label="En progreso" value={counts.in_progress} icon={<Clock3 size={14} />} tone="gold" to="/actividades?status=in_progress" />
+        <Kpi label="En revisión" value={counts.review} icon={<Eye size={14} />} tone="bark" to="/actividades?status=review" />
+        <Kpi label="Pendientes" value={counts.pending} icon={<CircleDashed size={14} />} tone="stone" to="/actividades?status=pending" />
+        <Kpi label="Atrasadas" value={counts.overdue} icon={<AlertTriangle size={14} />} tone={counts.overdue ? 'red' : 'stone'} to="/actividades?due=overdue" />
       </div>
+
+      {/* Ruta del proyecto: sprints como flechas (Inicio → … → Entrega) */}
+      {sprints.length > 0 && (
+        <Card className="p-4 sm:p-5">
+          <h3 className="mb-3 font-display text-[13px] font-extrabold uppercase tracking-wide text-brand-700">Ruta del proyecto</h3>
+          <div className="-mx-1 overflow-x-auto px-1 pb-1">
+            <ol className="flex min-w-max gap-1">
+              {sprints.map((s, i) => {
+                const style = s.sprint.status === 'finished' ? 'bg-brand-700 text-white' : s.sprint.status === 'active' ? 'bg-gold-500 text-brand-900' : 'bg-brand-100 text-brand-800';
+                return (
+                  <li key={s.sprint.id} className="w-44 sm:w-52 lg:min-w-0 lg:flex-1">
+                    <Link to={`/sprints#${s.sprint.id}`} className={cx('block h-full py-2.5 pl-5 pr-7 transition-opacity hover:opacity-90', i === 0 ? 'chevron-first pl-3' : 'chevron', style)}>
+                      <span className="block font-display text-[11px] font-extrabold uppercase tracking-wide">Sprint {s.sprint.number} · {s.progress}%</span>
+                      <span className="mt-0.5 block truncate text-xs font-semibold opacity-90">{s.sprint.name}</span>
+                    </Link>
+                  </li>
+                );
+              })}
+            </ol>
+          </div>
+          <p className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-[11px] text-slate-500">
+            <span className="inline-flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-sm bg-brand-700" />Finalizado</span>
+            <span className="inline-flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-sm bg-gold-500" />Activo</span>
+            <span className="inline-flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-sm bg-brand-100 ring-1 ring-brand-200" />Planificado</span>
+          </p>
+        </Card>
+      )}
 
       <div className="grid gap-5 lg:grid-cols-3">
         <Card>
@@ -97,12 +135,12 @@ export default function Dashboard() {
           <div className="h-[210px] px-2 pb-3">
             {sprints.length === 0 ? <EmptyState icon={<Rocket size={18} />} title="Sin sprints" text="Crea sprints para ver su avance." /> : (
               <ResponsiveContainer>
-                <BarChart data={sprints.map((s) => ({ name: `S${s.sprint.number}`, full: s.sprint.name, Avance: s.progress, fill: s.sprint.status === 'active' ? '#2563eb' : s.progress === 100 ? '#1baf7a' : '#93c5fd' }))} barCategoryGap="28%">
+                <BarChart data={sprints.map((s) => ({ name: `S${s.sprint.number}`, full: s.sprint.name, Avance: s.progress, fill: s.sprint.status === 'active' ? '#dfa020' : s.progress === 100 ? '#2f5f18' : '#6f9f45' }))} barCategoryGap="28%">
                   <CartesianGrid {...GRID} />
                   <XAxis dataKey="name" {...AXIS} />
                   <YAxis domain={[0, 100]} {...AXIS} width={34} tickFormatter={(v) => `${v}%`} />
-                  <Tooltip cursor={{ fill: '#f1f5f9' }} content={<ChartTooltip unit="%" />} labelFormatter={(l, p) => `${l} · ${p?.[0]?.payload?.full ?? ''}`} />
-                  <Bar dataKey="Avance" radius={[4, 4, 0, 0]} maxBarSize={48}>{sprints.map((s) => <Cell key={s.sprint.id} fill={s.sprint.status === 'active' ? '#2563eb' : s.progress === 100 ? '#1baf7a' : '#93c5fd'} />)}</Bar>
+                  <Tooltip cursor={{ fill: '#f1f6ec' }} content={<ChartTooltip unit="%" />} labelFormatter={(l, p) => `${l} · ${p?.[0]?.payload?.full ?? ''}`} />
+                  <Bar dataKey="Avance" radius={[4, 4, 0, 0]} maxBarSize={48}>{sprints.map((s) => <Cell key={s.sprint.id} fill={s.sprint.status === 'active' ? '#dfa020' : s.progress === 100 ? '#2f5f18' : '#6f9f45'} />)}</Bar>
                 </BarChart>
               </ResponsiveContainer>
             )}
@@ -129,8 +167,8 @@ export default function Dashboard() {
                 <ProgressBar value={active.progress} height={8} className="mt-2" />
                 <div className="mt-3 grid grid-cols-4 gap-2 text-center">
                   {(['pending', 'in_progress', 'review', 'done'] as const).map((s) => (
-                    <div key={s} className="rounded-lg bg-slate-50 py-2">
-                      <p className="text-lg font-semibold text-slate-900">{active.counts[s]}</p>
+                    <div key={s} className="rounded-lg border-2 border-brand-100 py-2">
+                      <p className="font-display text-lg font-extrabold text-brand-700">{active.counts[s]}</p>
                       <p className="text-[10px] leading-tight text-slate-500">{STATUS_META[s].label}</p>
                     </div>
                   ))}
@@ -156,9 +194,9 @@ export default function Dashboard() {
             {nextMeetings.length === 0 && <p className="px-2 py-4 text-center text-xs text-slate-400">No hay reuniones programadas.</p>}
             {nextMeetings.map((m) => (
               <button key={m.id} type="button" onClick={() => useUI.getState().openMeeting(m.id)} className="flex w-full items-center gap-3 rounded-lg px-2 py-2 text-left hover:bg-slate-50">
-                <div className="flex w-11 shrink-0 flex-col items-center rounded-lg border border-slate-200 py-1">
-                  <span className="text-[10px] uppercase text-slate-500">{fmtDate(m.date, 'MMM')}</span>
-                  <span className="text-base font-semibold leading-none text-slate-900">{fmtDate(m.date, 'd')}</span>
+                <div className="flex w-11 shrink-0 flex-col items-center rounded-lg bg-brand-600 py-1 text-white">
+                  <span className="text-[10px] font-bold uppercase text-gold-300">{fmtDate(m.date, 'MMM')}</span>
+                  <span className="font-display text-base font-extrabold leading-none">{fmtDate(m.date, 'd')}</span>
                 </div>
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-sm font-medium text-slate-800">{m.title}</p>
@@ -171,7 +209,7 @@ export default function Dashboard() {
               <div className="mt-2 border-t border-slate-100 pt-2">
                 {nextMilestones.map((ms) => (
                   <div key={ms.id} className="flex items-center gap-2 px-2 py-1 text-xs">
-                    <Flag size={13} className="text-violet-600" /><span className="flex-1 truncate text-slate-700">{ms.title}</span><span className="text-slate-500">{relativeDays(ms.date, today)}</span>
+                    <Flag size={13} className="text-bark-600" /><span className="flex-1 truncate text-slate-700">{ms.title}</span><span className="text-slate-500">{relativeDays(ms.date, today)}</span>
                   </div>
                 ))}
               </div>
@@ -181,7 +219,7 @@ export default function Dashboard() {
       </div>
 
       {overdue.length > 0 && (
-        <Card className="border-red-200">
+        <Card className="!border-red-300">
           <CardHeader title={<span className="flex items-center gap-1.5 text-red-700"><AlertTriangle size={15} /> Actividades atrasadas ({overdue.length})</span>} subtitle="Superaron su fecha límite y no están completadas" />
           <div className="grid gap-x-4 px-3 pb-3 md:grid-cols-2">{overdue.map((t) => <TaskLine key={t.id} task={t} />)}</div>
         </Card>

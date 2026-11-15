@@ -3,10 +3,10 @@ import type { Priority, SprintStatus, TaskStatus } from '../types';
 export const STATUSES: TaskStatus[] = ['pending', 'in_progress', 'review', 'done'];
 
 export const STATUS_META: Record<TaskStatus, { label: string; dot: string; badge: string; chart: string }> = {
-  pending: { label: 'Pendiente', dot: 'bg-slate-400', badge: 'bg-slate-100 text-slate-700 ring-slate-200', chart: '#94a3b8' },
-  in_progress: { label: 'En progreso', dot: 'bg-blue-600', badge: 'bg-blue-50 text-blue-700 ring-blue-200', chart: '#2a78d6' },
-  review: { label: 'En revisión', dot: 'bg-amber-500', badge: 'bg-amber-50 text-amber-800 ring-amber-200', chart: '#eda100' },
-  done: { label: 'Completada', dot: 'bg-emerald-500', badge: 'bg-emerald-50 text-emerald-700 ring-emerald-200', chart: '#1baf7a' },
+  pending: { label: 'Pendiente', dot: 'bg-stone-400', badge: 'bg-stone-100 text-stone-700 ring-stone-200', chart: '#a8a99a' },
+  in_progress: { label: 'En progreso', dot: 'bg-gold-500', badge: 'bg-gold-50 text-gold-700 ring-gold-200', chart: '#dfa020' },
+  review: { label: 'En revisión', dot: 'bg-bark-500', badge: 'bg-bark-50 text-bark-700 ring-bark-200', chart: '#9c5a14' },
+  done: { label: 'Completada', dot: 'bg-brand-600', badge: 'bg-brand-50 text-brand-700 ring-brand-200', chart: '#3f7a22' },
 };
 
 export const PRIORITIES: Priority[] = ['high', 'medium', 'low'];
@@ -21,11 +21,11 @@ export const SPRINT_STATUSES: SprintStatus[] = ['planned', 'active', 'finished']
 
 export const SPRINT_STATUS_META: Record<SprintStatus, { label: string; badge: string }> = {
   planned: { label: 'Planificado', badge: 'bg-slate-100 text-slate-700 ring-slate-200' },
-  active: { label: 'Activo', badge: 'bg-blue-50 text-blue-700 ring-blue-200' },
-  finished: { label: 'Finalizado', badge: 'bg-emerald-50 text-emerald-700 ring-emerald-200' },
+  active: { label: 'Activo', badge: 'bg-gold-50 text-gold-700 ring-gold-200' },
+  finished: { label: 'Finalizado', badge: 'bg-brand-50 text-brand-700 ring-brand-200' },
 };
 
-/** Paleta categórica validada (orden fijo, nunca ciclado por rango). */
-export const CATEGORICAL = ['#2a78d6', '#eb6834', '#1baf7a', '#eda100', '#e87ba4', '#008300', '#6250d6', '#e34948'];
+/** Paleta categórica estilo póster, validada (orden fijo; los 5 primeros pasan las pruebas de daltonismo). */
+export const CATEGORICAL = ['#3f7a22', '#dfa020', '#9c5a14', '#008f8c', '#7d58a8', '#c4572e', '#5d7f99', '#a3a13a'];
 
 export const colorFor = (index: number) => CATEGORICAL[((index % CATEGORICAL.length) + CATEGORICAL.length) % CATEGORICAL.length];

@@ -52,8 +52,8 @@ export default function Activities() {
   }, [list, group, sprints]);
 
   const th = (key: SortKey, label: string, cls = '') => (
-    <th className={cx('px-3 py-2.5 text-left text-xs font-medium text-slate-500', cls)}>
-      <button type="button" onClick={() => setSort((s) => ({ key, dir: s.key === key ? (s.dir === 1 ? -1 : 1) : 1 }))} className="inline-flex items-center gap-1 hover:text-slate-800">
+    <th className={cx('px-3 py-2.5 text-left font-display text-[11px] font-extrabold uppercase tracking-wide text-white', cls)}>
+      <button type="button" onClick={() => setSort((s) => ({ key, dir: s.key === key ? (s.dir === 1 ? -1 : 1) : 1 }))} className="inline-flex items-center gap-1 hover:text-gold-200">
         {label}{sort.key === key && (sort.dir === 1 ? <ArrowUp size={12} /> : <ArrowDown size={12} />)}
       </button>
     </th>
@@ -76,11 +76,11 @@ export default function Activities() {
         <div className="space-y-5">
           {groups.map((g) => (
             <div key={g.key}>
-              {g.label && <h3 className="mb-2 flex items-center gap-2 text-sm font-semibold text-slate-700">{g.label} <span className="text-xs font-normal text-slate-400">{g.items.length}</span></h3>}
+              {g.label && <h3 className="mb-2 flex items-center gap-2 font-display text-sm font-extrabold uppercase tracking-wide text-brand-700">{g.label} <span className="text-xs font-normal text-slate-400">{g.items.length}</span></h3>}
               {/* Tabla (escritorio) */}
               <Card className="hidden overflow-hidden md:block">
                 <table className="w-full table-fixed">
-                  <thead className="border-b border-slate-100 bg-slate-50/60">
+                  <thead className="bg-brand-600">
                     <tr>
                       <th className="w-10" />
                       {th('title', 'Actividad', 'w-[34%]')}
@@ -111,9 +111,9 @@ export default function Activities() {
     const cp = checklistProgress(t);
     const sp = sprints.get(t.sprintId ?? '');
     return (
-      <tr className="group cursor-pointer hover:bg-slate-50/70" onClick={() => useUI.getState().openTask(t.id)}>
+      <tr className="group cursor-pointer odd:bg-white even:bg-brand-50/40 hover:bg-gold-50" onClick={() => useUI.getState().openTask(t.id)}>
         <td className="pl-4" onClick={(e) => e.stopPropagation()}>
-          <input type="checkbox" aria-label="Completar" checked={t.status === 'done'} onChange={(e) => { usePlanner.getState().setTaskStatus(t.id, e.target.checked ? 'done' : 'in_progress'); useUI.getState().toast(e.target.checked ? 'Actividad completada · avance actualizado' : 'Actividad reabierta'); }} className="h-4 w-4 cursor-pointer accent-blue-600" />
+          <input type="checkbox" aria-label="Completar" checked={t.status === 'done'} onChange={(e) => { usePlanner.getState().setTaskStatus(t.id, e.target.checked ? 'done' : 'in_progress'); useUI.getState().toast(e.target.checked ? 'Actividad completada · avance actualizado' : 'Actividad reabierta'); }} className="h-4 w-4 cursor-pointer accent-brand-600" />
         </td>
         <td className="px-3 py-2.5">
           <p className={cx('truncate text-sm font-medium', t.status === 'done' ? 'text-slate-400 line-through' : 'text-slate-800')}>{t.title}</p>
@@ -148,7 +148,7 @@ export default function Activities() {
     const sp = sprints.get(t.sprintId ?? '');
     return (
       <Card className="flex items-start gap-3 p-3" onClick={() => useUI.getState().openTask(t.id)}>
-        <input type="checkbox" aria-label="Completar" checked={t.status === 'done'} onClick={(e) => e.stopPropagation()} onChange={(e) => usePlanner.getState().setTaskStatus(t.id, e.target.checked ? 'done' : 'in_progress')} className="mt-1 h-4 w-4 accent-blue-600" />
+        <input type="checkbox" aria-label="Completar" checked={t.status === 'done'} onClick={(e) => e.stopPropagation()} onChange={(e) => usePlanner.getState().setTaskStatus(t.id, e.target.checked ? 'done' : 'in_progress')} className="mt-1 h-4 w-4 accent-brand-600" />
         <div className="min-w-0 flex-1">
           <p className={cx('text-sm font-medium', t.status === 'done' ? 'text-slate-400 line-through' : 'text-slate-800')}>{t.title}</p>
           <div className="mt-1.5 flex flex-wrap items-center gap-1.5">

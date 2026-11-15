@@ -64,7 +64,7 @@ export default function Sprints() {
                   <CartesianGrid {...GRID} />
                   <XAxis dataKey="name" {...AXIS} />
                   <YAxis allowDecimals={false} {...AXIS} width={28} />
-                  <Tooltip cursor={{ fill: '#f1f5f9' }} content={<ChartTooltip />} labelFormatter={(l, p) => `${l} · ${p?.[0]?.payload?.full ?? ''} (${p?.[0]?.payload?.progress ?? 0}%)`} />
+                  <Tooltip cursor={{ fill: '#f1f6ec' }} content={<ChartTooltip />} labelFormatter={(l, p) => `${l} · ${p?.[0]?.payload?.full ?? ''} (${p?.[0]?.payload?.progress ?? 0}%)`} />
                   {STATUSES.map((s, i) => <Bar key={s} dataKey={STATUS_META[s].label} stackId="a" fill={STATUS_META[s].chart} stroke="#fff" strokeWidth={1} radius={i === STATUSES.length - 1 ? [4, 4, 0, 0] : 0} maxBarSize={44} />)}
                 </BarChart>
               </ResponsiveContainer>
@@ -89,21 +89,22 @@ export default function Sprints() {
           const left = daysBetween(today, s.endDate);
           const owner = members.get(s.ownerId ?? '');
           return (
-            <Card key={s.id} id={`sprint-${s.id}`} className={cx('scroll-mt-20', s.status === 'active' && 'ring-1 ring-brand-200')}>
+            <Card key={s.id} id={`sprint-${s.id}`} className={cx('scroll-mt-20', s.status === 'active' && '!border-solid !border-gold-500')}>
               <div className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center">
                 <button type="button" onClick={() => toggle(s.id)} className="flex min-w-0 flex-1 items-start gap-3 text-left">
-                  <span className="mt-0.5 text-slate-400">{open ? <ChevronDown size={18} /> : <ChevronRight size={18} />}</span>
+                  <span className={cx('flex h-11 w-11 shrink-0 items-center justify-center rounded-full font-display text-lg font-extrabold', s.status === 'active' ? 'bg-gold-500 text-brand-900' : s.status === 'finished' ? 'bg-brand-700 text-white' : 'border-[3px] border-brand-600 text-brand-700')}>{s.number}</span>
                   <div className="min-w-0">
                     <div className="flex flex-wrap items-center gap-2">
-                      <span className="text-xs font-semibold text-brand-700">SPRINT {s.number}</span>
+                      <span className="text-brand-400">{open ? <ChevronDown size={15} /> : <ChevronRight size={15} />}</span>
+                      <span className="font-display text-xs font-extrabold uppercase tracking-wide text-brand-700">Sprint {s.number}</span>
                       <SprintStatusBadge status={s.status} />
-                      {progress === 100 && tasks.length > 0 && s.status !== 'finished' && <span className="text-[11px] font-medium text-emerald-700">✓ Todas las actividades completadas</span>}
+                      {progress === 100 && tasks.length > 0 && s.status !== 'finished' && <span className="text-[11px] font-medium text-brand-700">✓ Todas las actividades completadas</span>}
                     </div>
-                    <p className="mt-0.5 font-medium text-slate-900">{s.name}</p>
+                    <p className="mt-0.5 font-display font-bold text-slate-900">{s.name}</p>
                     {s.goal && <p className="mt-0.5 flex items-start gap-1 text-xs text-slate-500"><Target size={12} className="mt-0.5 shrink-0" />{s.goal}</p>}
                   </div>
                 </button>
-                <div className="flex flex-wrap items-center gap-x-5 gap-y-2 pl-8 sm:pl-0">
+                <div className="flex flex-wrap items-center gap-x-5 gap-y-2 pl-14 sm:pl-0">
                   <div className="text-xs text-slate-500">
                     <p>{fmtShort(s.startDate)} – {fmtShort(s.endDate)}</p>
                     <p className={cx(s.status === 'active' && left < 0 && 'text-amber-700')}>{s.status === 'finished' ? 'Cerrado' : left >= 0 ? `${left} días restantes` : `Venció hace ${-left} días`}</p>
@@ -162,9 +163,9 @@ function SprintTasks({ sprint, tasks, bare }: { sprint: Sprint | null; tasks: Ta
       {tasks.length === 0 && <p className="px-2 py-3 text-xs text-slate-400">Sin actividades. Asígnalas desde el backlog o crea una nueva.</p>}
       {tasks.map((t) => (
         <div key={t.id} className="flex items-center gap-1">
-          <input type="checkbox" aria-label="Seleccionar" checked={selected.includes(t.id)} onChange={(e) => setSelected((s) => (e.target.checked ? [...s, t.id] : s.filter((x) => x !== t.id)))} className="ml-2 h-3.5 w-3.5 accent-blue-600" />
+          <input type="checkbox" aria-label="Seleccionar" checked={selected.includes(t.id)} onChange={(e) => setSelected((s) => (e.target.checked ? [...s, t.id] : s.filter((x) => x !== t.id)))} className="ml-2 h-3.5 w-3.5 accent-brand-600" />
           <div className="min-w-0 flex-1"><TaskLine task={t} /></div>
-          <span className={cx('hidden w-24 text-right text-[11px] sm:block', t.status === 'done' ? 'text-emerald-700' : 'text-slate-500')}>{STATUS_META[t.status].label}</span>
+          <span className={cx('hidden w-24 text-right text-[11px] sm:block', t.status === 'done' ? 'text-brand-700' : 'text-slate-500')}>{STATUS_META[t.status].label}</span>
           <Select aria-label="Mover a sprint" className="!h-7 !w-28 text-xs" value={t.sprintId ?? ''} onChange={(e) => move([t.id], e.target.value)}>
             <option value="">Backlog</option>
             {[...sprints].sort((a, b) => a.number - b.number).map((s) => <option key={s.id} value={s.id}>Sprint {s.number}</option>)}
